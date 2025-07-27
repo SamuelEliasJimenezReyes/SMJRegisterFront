@@ -1,6 +1,6 @@
-import type { ChurchDTO } from "./church.dto";
-import type { GrantedCodeDto } from "./grantedCode.dto";
-import type { RoomDto } from "./room.dto";
+import type { ChurchSimpleDTO } from "./church.dto";
+import type { GrantedCodeDto } from "./granted-code.dto";
+import type { RoomSimpleDto } from "./room.dto";
 
 export interface CreateCamperDTO {
   name: string;
@@ -27,8 +27,21 @@ export interface CamperDTO {
   isPaid: boolean;
   gender: number;
   condition: number;
-  church: ChurchDTO;
+  church: ChurchSimpleDTO;
   grantedCode?: GrantedCodeDto;
-  room?: RoomDto;
+  room?: RoomSimpleDto;
+}
+
+export interface CamperDTOSimpleDto {
+    name: string;
+  lastName: string;
+  documentNumber: string;
+  paidAmount: number
+  isGrant: boolean;
+  grantedAmount: number;
+  isPaid: boolean;
+  gender: number;
+  condition: number;
+  church: ChurchSimpleDTO;
 }
 
