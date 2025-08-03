@@ -14,7 +14,9 @@ export interface CreateCamperDTO {
   condition: number;
   churchId: number;
   roomId?: number;
-  code?: string; 
+  code?: string;
+  paidType: number; 
+  documents: File[]; 
 }
 
 export interface CamperDTO {
@@ -33,7 +35,8 @@ export interface CamperDTO {
 }
 
 export interface CamperDTOSimpleDto {
-    name: string;
+  id: number;
+  name: string;
   lastName: string;
   documentNumber: string;
   paidAmount: number

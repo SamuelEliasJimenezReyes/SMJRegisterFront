@@ -16,7 +16,9 @@ const CreateCamperForm: React.FC = () => {
     condition: 0,
     churchId: 0,
     roomId: undefined,
-    code: ""
+    code: "",
+    paidType: 0,
+    documents: [],
   });
 
   const [loading, setLoading] = useState(false);
@@ -94,25 +96,6 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
         required
       />
 
-      <input
-        name="paidAmount"
-        type="number"
-        placeholder="Monto Pagado"
-        className="input input-bordered w-full"
-        value={formData.paidAmount}
-        onChange={handleChange}
-        required
-      />
-
-      <input
-        name="grantedAmount"
-        type="number"
-        placeholder="Monto Otorgado"
-        className="input input-bordered w-full"
-        value={formData.grantedAmount}
-        onChange={handleChange}
-        required
-      />
 
       <div className="form-control">
         <label className="label cursor-pointer">
@@ -127,18 +110,6 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
         </label>
       </div>
 
-      <div className="form-control">
-        <label className="label cursor-pointer">
-          <span className="label-text">¿Pagado?</span>
-          <input
-            type="checkbox"
-            name="isPaid"
-            className="toggle"
-            checked={formData.isPaid}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
 
       <select
         name="gender"
@@ -171,23 +142,47 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
 
     <ChurchSelector value={formData.churchId} onChange={handleChurchChange}/>
 
-      <input
-        name="roomId"
-        type="number"
-        placeholder="ID de Habitación (opcional)"
-        className="input input-bordered w-full"
-        value={formData.roomId ?? ""}
+      {formData.isGrant && (
+        <input
+          name="code"
+          type="text"
+          placeholder="Código de beca"
+          className="input input-bordered w-full"
+          value={formData.code ?? ""}
+          onChange={handleChange}
+          required 
+        />
+      )}
+
+      <select
+        name="paidType"
+        className="select select-bordered w-full"
+        value={formData.paidType}
         onChange={handleChange}
-      />
+        required
+      >
+        <option value={0} disabled>
+          Seleccione un metodo de pago 
+        </option>
+        <option value={1}>Transferencia</option>
+        <option value={2}>Atravez de un directivo</option>
+      </select>
 
       <input
-        name="code"
-        type="text"
-        placeholder="Código (opcional)"
-        className="input input-bordered w-full"
-        value={formData.code ?? ""}
-        onChange={handleChange}
-      />
+      type="file"
+      name="documents"
+      multiple
+      accept=".pdf,.jpg,.jpeg,.png"
+      className="file-input file-input-success w-full"
+      onChange={(e) => {
+        const files = Array.from(e.target.files ?? []);
+        setFormData((prev) => ({
+          ...prev,
+          documents: files, 
+        }));
+      }}
+    />
+
 
       <button type="submit" className={`btn btn-primary w-full ${loading ? "loading" : ""}`}>
         {loading ? "Registrando..." : "Registrar"}

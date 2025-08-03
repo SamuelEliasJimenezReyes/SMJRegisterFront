@@ -1,6 +1,7 @@
-import type { CamperDTO,CreateCamperDTO } from "../dtos/camper.dto";
+import type { CamperDTO,CamperDTOSimpleDto,CreateCamperDTO } from "../dtos/camper.dto";
 
 export interface ICamperService {
-  GetAllCampersAsync(): Promise<CamperDTO[]>;
+  GetAllCampersAsync(): Promise<CamperDTOSimpleDto[]>;
   CreateCamperAsync(camper: CreateCamperDTO): Promise<void>;
+  GetCamperByIdAsync(id: number): Promise<CamperDTO>;
 }
