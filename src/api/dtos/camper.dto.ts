@@ -15,36 +15,55 @@ export interface CreateCamperDTO {
   churchId: number;
   roomId?: number;
   code?: string;
+  shirtSize: number;
+  arrivedTime: string; 
   paidType: number; 
   documents: File[]; 
 }
-
 export interface CamperDTO {
   name: string;
   lastName: string;
   documentNumber: string;
-  paidAmount: number
+  paidAmount: number;
   isGrant: boolean;
-  grantedAmount: number;
   isPaid: boolean;
-  gender: number;
-  condition: number;
+  gender: string;
+  condition: string;
+  payType: string;
+  shirtSize: string;
+  arrivedTime: string;
+  arrivedTimeHumanized: string;
+  documentsURL?: string[];
   church: ChurchSimpleDTO;
   grantedCode?: GrantedCodeDto;
   room?: RoomSimpleDto;
 }
 
+
 export interface CamperDTOSimpleDto {
-  id: number;
+ id: number;
   name: string;
   lastName: string;
   documentNumber: string;
-  paidAmount: number
   isGrant: boolean;
-  grantedAmount: number;
+  gender: string;
+  condition: string;
+  payType: string;
+  shirtSize: string;
+  arrivedTime: string;
+  arrivedTimeHumanized: string;
+  church: ChurchSimpleDTO;
+}
+export interface UpdateCamperDTO {
+  name: string;
+  lastName: string;
+  paidAmount: number;
+  isGrant: boolean;
   isPaid: boolean;
   gender: number;
   condition: number;
-  church: ChurchSimpleDTO;
+  payType: number;
+  shirtSize: number;
+  churchId: number;
+  roomId?: number | null;
 }
-

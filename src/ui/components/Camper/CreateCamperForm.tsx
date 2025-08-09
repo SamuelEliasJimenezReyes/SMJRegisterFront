@@ -2,6 +2,7 @@ import React ,{ useEffect, useState} from 'react';
 import type { CreateCamperDTO } from '../../../api/dtos/camper.dto';
 import { CamperService } from '../../../api/services/camper.service';
 import ChurchSelector from '../Church/ChurchSelector';
+import BankInfoDisplay from '../BankInformation/BankInfoDisplay';
 
 const CreateCamperForm: React.FC = () => {
   const [formData, setFormData] = useState<CreateCamperDTO>({
@@ -19,12 +20,18 @@ const CreateCamperForm: React.FC = () => {
     code: "",
     paidType: 0,
     documents: [],
+    shirtSize: 0,
+    arrivedTime: new Date().toISOString(),
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [selectedChurchId, setSelectedChurchId] = useState<number>(0);
+const [selectedConferenceId, setSelectedConferenceId] = useState<number | null>(null);
+const [conferences, setConferences] = useState<{ id: number; name: string }[]>([]);
+
+
 
 const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
   const { name, value, type } = e.target;
@@ -53,6 +60,14 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
       setLoading(false);
     }
   }
+  useEffect(() => {
+  setConferences([
+    { id: 1, name: 'NorthWest' },
+    { id: 2, name: 'SouthEast' },
+    { id: 3, name: 'Central' },
+  ]);
+}, []);
+
 
  const handleChurchChange = (churchId: number) => {
     setFormData((prev) => ({
@@ -99,7 +114,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
 
       <div className="form-control">
         <label className="label cursor-pointer">
-          <span className="label-text">¿Becado?</span>
+          <span className="label-text">¿Tiene codigo?</span>
           <input
             type="checkbox"
             name="isGrant"
@@ -154,6 +169,23 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
         />
       )}
 
+      <div className="mt-4">
+        <label className="label font-semibold">Seleccione una conferencia para ver las cuentas bancarias:</label>
+        <select
+          className="select select-bordered w-full"
+          value={selectedConferenceId ?? ''}
+          onChange={(e) => setSelectedConferenceId(Number(e.target.value))}
+        >
+          <option value="" disabled>Seleccione una conferencia</option>
+          {conferences.map(conf => (
+            <option key={conf.id} value={conf.id}>{conf.name}</option>
+          ))}
+        </select>
+
+        <BankInfoDisplay conferenceId={selectedConferenceId} />
+      </div>
+
+
       <select
         name="paidType"
         className="select select-bordered w-full"
@@ -166,6 +198,25 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
         </option>
         <option value={1}>Transferencia</option>
         <option value={2}>Atravez de un directivo</option>
+      </select>
+
+      <select
+        name="shirtSize"
+        className="select select-bordered w-full"
+        value={formData.shirtSize}
+        onChange={handleChange}
+        required
+      >
+        <option value={0} disabled>
+          Seleccione un tamaño de camiseta 
+        </option>
+        <option value={1}>XS</option>
+        <option value={2}>S</option>
+        <option value={3}>M</option>
+        <option value={4}>L</option>
+        <option value={5}>XL</option>
+        <option value={6}>XXL</option>
+        <option value={7}>XXXL</option>
       </select>
 
       <input

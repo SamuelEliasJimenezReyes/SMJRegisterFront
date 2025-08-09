@@ -25,7 +25,6 @@ const ChurchSelector: React.FC<ChurchSelectorProps> = ({ value, onChange }) => {
         setLoading(false);
       }
     };
-
     fetchChurches();
   }, []);
 

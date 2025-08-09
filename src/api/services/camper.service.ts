@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { CamperDTO , CamperDTOSimpleDto, CreateCamperDTO } from "../dtos/camper.dto";
+import type { CamperDTO , CamperDTOSimpleDto, CreateCamperDTO, UpdateCamperDTO } from "../dtos/camper.dto";
 import type { ICamperService } from './Icamper.service';
 
 const baseURL = 'http://localhost:5224/camper';
@@ -44,6 +44,8 @@ async CreateCamperAsync(camper: CreateCamperDTO): Promise<void> {
     formData.append('Condition', camper.condition.toString());
     formData.append('ChurchId', camper.churchId.toString());
     formData.append('PaidType', camper.paidType.toString());
+    formData.append('ArrivedTime', camper.arrivedTime.toString());
+    formData.append('ShirtSize', camper.shirtSize.toString());
 
 
     if (camper.roomId !== null && camper.roomId !== undefined) {
@@ -73,5 +75,24 @@ async CreateCamperAsync(camper: CreateCamperDTO): Promise<void> {
     return Promise.reject(error);
   }
 }
-
+async UpdateCamperAsync(id: number, camper: UpdateCamperDTO): Promise<void> {
+  try {
+    const payload = {
+      ...camper,
+      gender: camper.gender || 1,
+      condition: camper.condition || 1,
+      payType: camper.payType || 1,
+      shirtSize: camper.shirtSize || 1,
+      roomId: camper.roomId || null
+    };
+    
+    const result = await axios.put(`http://localhost:5224/camper/${id}`, payload);
+    if (result.status === 200) {
+      console.log("Camper updated successfully");
+    }
+  } catch (error) {
+    console.error("Error updating camper:", error);
+    return Promise.reject(error);
+  }
+}
 }
