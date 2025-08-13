@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { CamperService } from '../../../api/services/camper.service';
-import type { CamperDTOSimpleDto, CamperDTO } from '../../../api/dtos/camper.dto';
+import type { CamperSimpleDto, CamperDTO } from '../../../api/dtos/camper.dto';
 import CamperDetailModal from './CamperDetailModal';
-import UpdateCamperForm from './UpdateCamperModal'; // Asegúrate de importar el componente de actualización
+import UpdateCamperForm from './UpdateCamperModal'; 
 
 const CamperTable: React.FC = () => {
-  const [campers, setCampers] = useState<CamperDTOSimpleDto[]>([]);
+  const [campers, setCampers] = useState<CamperSimpleDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCamper, setSelectedCamper] = useState<CamperDTO | null>(null);
@@ -63,7 +63,7 @@ const CamperTable: React.FC = () => {
           <tr>
             <th>Nombre</th>
             <th>Apellido</th>
-            <th>Documento</th>
+            <th>Telefono</th>
             <th>Becado</th>
             <th>Género</th>
             <th>Condición</th>
@@ -78,13 +78,13 @@ const CamperTable: React.FC = () => {
             <tr key={camper.id}>
               <td>{camper.name}</td>
               <td>{camper.lastName}</td>
-              <td>{camper.documentNumber}</td>
+              <td>{camper.phoneNumber}</td>
               <td>{camper.isGrant ? 'Sí' : 'No'}</td>
               <td>{camper.gender}</td>
               <td>{camper.condition}</td>
               <td>{camper.church?.name || '-'}</td>
               <td>{camper.church?.conference || '-'}</td>
-              <td>{camper.arrivedTimeHumanized}</td>
+              <td>{camper.arrivedTimeSlot}</td>
               <td className="flex gap-2">
                 <button
                   className="btn btn-sm btn-outline btn-info"
@@ -104,7 +104,6 @@ const CamperTable: React.FC = () => {
         </tbody>
       </table>
 
-      {/* Modal de Detalles */}
       {selectedCamper && (
         <CamperDetailModal camper={selectedCamper} onClose={handleCloseModal} />
       )}

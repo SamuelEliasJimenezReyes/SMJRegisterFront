@@ -21,12 +21,12 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
               <h4 className="font-semibold">Información General</h4>
               <p><strong>Nombre:</strong> {room.name}</p>
               <p><strong>Capacidad Máxima:</strong> {room.maxCapacity}</p>
-              <p><strong>Ocupación Actual:</strong> {room.Campers.length}</p>
+              <p><strong>Ocupación Actual:</strong> {room.campers.length}</p>
             </div>
             
             <div>
               <h4 className="font-semibold mt-4">Estado</h4>
-              {room.Campers.length < room.maxCapacity ? (
+              {room.campers.length < room.maxCapacity ? (
                 <span className="badge badge-success">Disponible</span>
               ) : (
                 <span className="badge badge-error">Llena</span>
@@ -36,7 +36,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
 
           <div>
             <h4 className="font-semibold">Campistas Asignados</h4>
-            {room.Campers.length > 0 ? (
+            {room.campers.length > 0 ? (
               <div className="max-h-60 overflow-y-auto">
                 <table className="table table-xs">
                   <thead>
@@ -46,7 +46,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {room.Campers.map(camper => (
+                    {room.campers.map(camper => (
                       <tr key={camper.id}>
                         <td>{camper.name} {camper.lastName}</td>
                         <td>{camper.church?.name || '-'}</td>

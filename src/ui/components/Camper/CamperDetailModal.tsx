@@ -25,13 +25,13 @@ const CamperDetailModal: React.FC<CamperDetailModalProps> = ({ camper, onClose }
 
         <div className="space-y-2">
           <p><strong>Nombre:</strong> {camper.name} {camper.lastName}</p>
-          <p><strong>Documento:</strong> {camper.documentNumber}</p>
+          <p><strong>Documento:</strong> {camper.phoneNumber}</p>
           <p><strong>Becado:</strong> {camper.isGrant ? 'Sí' : 'No'}</p>
           <p><strong>Género:</strong> {camper.gender}</p>
           <p><strong>Condición:</strong> {camper.condition}</p>
           <p><strong>Iglesia:</strong> {camper.church?.name || 'No especificada'}</p>
           <p><strong>Conferencia:</strong> {camper.church?.conference || 'No especificada'}</p>
-          <p><strong>Hora de llegada:</strong> {camper.arrivedTimeHumanized}</p>
+          <p><strong>Hora de llegada:</strong> {camper.arrivedTimeSlot}</p>
           <p><strong>Habitacion:</strong> {camper.room?.name || 'No asignada'}</p>
 
           <div>

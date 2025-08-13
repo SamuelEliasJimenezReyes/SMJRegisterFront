@@ -12,43 +12,49 @@ interface UpdateCamperFormProps {
 const camperService = new CamperService();
 
 const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated }) => {
-  const [formData, setFormData] = useState<UpdateCamperDTO>({
+  const initialFormState: UpdateCamperDTO = {
     name: '',
     lastName: '',
+    age: 0,
     paidAmount: 0,
     isGrant: false,
     isPaid: false,
-    gender: 0, 
-    condition: 0, 
-    payType: 0, 
-    shirtSize: 0, 
+    gender: 1, // Valor por defecto
+    condition: 1, // Valor por defecto
+    payType: 1, // Valor por defecto
+    shirtSize: 1, // Valor por defecto
     churchId: 0,
-    roomId: 0, 
-  });
+    roomId: null, // Inicializado como null
+  };
 
+  const [formData, setFormData] = useState<UpdateCamperDTO>(initialFormState);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadCamper = async () => {
       try {
-        const camper: CamperDTO = await camperService.GetCamperByIdAsync(camperId);
+        const camper = await camperService.GetCamperByIdAsync(camperId);
+        
         setFormData({
           name: camper.name,
           lastName: camper.lastName,
+          age: camper.age || 0,
           paidAmount: Number(camper.paidAmount),
           isGrant: camper.isGrant,
-          isPaid: camper.isPaid ?? false,
-          gender: camper.gender ? parseInt(camper.gender) : 1, // Conversión segura con valor por defecto
-          condition: camper.condition ? parseInt(camper.condition) : 1,
-          payType: camper.payType ? parseInt(camper.payType) : 1,
-          shirtSize: camper.shirtSize ? parseInt(camper.shirtSize) : 1,
+          isPaid: camper.isPaid,
+          gender: parseInt(camper.gender) || 1,
+          condition: parseInt(camper.condition) || 1,
+          payType: parseInt(camper.payType) || 1,
+          shirtSize: parseInt(camper.shirtSize) || 1,
           churchId: camper.church.id,
-          roomId: camper.room?.id ?? null, // Mantenemos null si no hay habitación
+          roomId: camper.room?.id || null,
         });
+        
         setLoading(false);
       } catch (err) {
-        setError("Error cargando el camper");
+        console.error("Error loading camper:", err);
+        setError("Error cargando los datos del campista");
         setLoading(false);
       }
     };
@@ -59,149 +65,148 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
 
-    let finalValue: string | number | boolean | null = value;
+    setFormData(prev => {
+      let newValue: any = value;
 
-    if (type === 'checkbox') {
-      finalValue = (e.target as HTMLInputElement).checked;
-    } else if (type === 'number') {
-      finalValue = value === '' ? 0 : Number(value);
-    } else if (type === 'select-one') {
-      // Manejo especial para roomId que puede ser null
-      if (name === 'roomId') {
-        finalValue = value === '' ? null : Number(value);
-      } else {
-        // Para otros selects, asegurar siempre un valor numérico válido
-        finalValue = value === '' ? 1 : Number(value);
+      if (type === 'checkbox') {
+        newValue = (e.target as HTMLInputElement).checked;
+      } else if (type === 'number') {
+        newValue = value === '' ? 0 : Number(value);
+      } else if (name === 'roomId') {
+        newValue = value === '' ? null : Number(value);
+      } else if (type === 'select-one') {
+        newValue = Number(value);
       }
-    }
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: finalValue
-    }));
+      return {
+        ...prev,
+        [name]: newValue
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
     try {
-      const payload = {
-        ...formData,
-        gender: formData.gender || 1,
-        condition: formData.condition || 1,
-        payType: formData.payType || 1,
-        shirtSize: formData.shirtSize || 1
-      };
-      
-      await camperService.UpdateCamperAsync(camperId, payload);
-      alert("Camper actualizado con éxito");
-      if (onUpdated) onUpdated();
+      await camperService.UpdateCamperAsync(camperId, formData);
+      alert("Campista actualizado con éxito");
+      onUpdated?.();
     } catch (error) {
-      console.error(error);
-      alert("Error actualizando camper");
+      console.error("Update error:", error);
+      setError("Error al actualizar el campista");
     }
   };
 
-  if (loading) return <div className="text-center py-4">Cargando camper...</div>;
-  if (error) return <div className="text-center text-error py-4">{error}</div>;
+  if (loading) return <div className="text-center py-4">Cargando datos del campista...</div>;
+  if (error) return <div className="text-center text-red-500 py-4">{error}</div>;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4">
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 max-w-4xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Nombre y Apellido */}
         <div>
-          <label className="label">
-            <span className="label-text">Nombre</span>
-          </label>
+          <label className="block mb-2 font-medium">Nombre</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="input input-bordered w-full"
+            className="w-full p-2 border rounded"
             required
           />
         </div>
 
         <div>
-          <label className="label">
-            <span className="label-text">Apellido</span>
-          </label>
+          <label className="block mb-2 font-medium">Apellido</label>
           <input
             type="text"
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            className="input input-bordered w-full"
+            className="w-full p-2 border rounded"
             required
           />
         </div>
 
+        {/* Edad y Monto Pagado */}
         <div>
-          <label className="label">
-            <span className="label-text">Cantidad Pagada</span>
-          </label>
+          <label className="block mb-2 font-medium">Edad</label>
+          <input
+            type="number"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            min="0"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2 font-medium">Monto Pagado</label>
           <input
             type="number"
             name="paidAmount"
             value={formData.paidAmount}
             onChange={handleChange}
-            className="input input-bordered w-full"
+            className="w-full p-2 border rounded"
             min="0"
+            step="0.01"
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 cursor-pointer">
+        {/* Checkboxes */}
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center space-x-2">
             <input
               type="checkbox"
               name="isGrant"
               checked={formData.isGrant}
               onChange={handleChange}
-              className="checkbox checkbox-primary"
+              className="h-5 w-5"
             />
-            <span className="label-text">Beca</span>
+            <span>Beca</span>
           </label>
 
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center space-x-2">
             <input
               type="checkbox"
               name="isPaid"
               checked={formData.isPaid}
               onChange={handleChange}
-              className="checkbox checkbox-primary"
+              className="h-5 w-5"
             />
-            <span className="label-text">Pagado</span>
+            <span>Pagado</span>
           </label>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {/* Selectores */}
         <div>
-          <label className="label">
-            <span className="label-text">Género</span>
-          </label>
+          <label className="block mb-2 font-medium">Género</label>
           <select
             name="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="select select-bordered w-full"
-            required
-          >
+            className="w-full p-2 border rounded"
+            required>
+              
             <option value={1}>Hombre</option>
             <option value={2}>Mujer</option>
           </select>
         </div>
 
         <div>
-          <label className="label">
-            <span className="label-text">Condición</span>
-          </label>
+          <label className="block mb-2 font-medium">Condición</label>
           <select
             name="condition"
             value={formData.condition}
             onChange={handleChange}
-            className="select select-bordered w-full"
-            required
-          >
+            className="w-full p-2 border rounded"
+            required>
+
             <option value={1}>Campista</option>
             <option value={2}>Staff</option>
             <option value={3}>Directivo</option>
@@ -209,14 +214,12 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
         </div>
 
         <div>
-          <label className="label">
-            <span className="label-text">Método de Pago</span>
-          </label>
+          <label className="block mb-2 font-medium">Método de Pago</label>
           <select
             name="payType"
             value={formData.payType}
             onChange={handleChange}
-            className="select select-bordered w-full"
+            className="w-full p-2 border rounded"
             required
           >
             <option value={1}>Mediante Directivo</option>
@@ -225,14 +228,12 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
         </div>
 
         <div>
-          <label className="label">
-            <span className="label-text">Talla de Camiseta</span>
-          </label>
+          <label className="block mb-2 font-medium">Talla de Camiseta</label>
           <select
             name="shirtSize"
             value={formData.shirtSize}
             onChange={handleChange}
-            className="select select-bordered w-full"
+            className="w-full p-2 border rounded"
             required
           >
             <option value={1}>XS - Extra Pequeño</option>
@@ -246,11 +247,9 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
-          <label className="label">
-            <span className="label-text">Iglesia</span>
-          </label>
+          <label className="block mb-2 font-medium">Iglesia</label>
           <ChurchSelector
             value={formData.churchId}
             onChange={(churchId) => setFormData(prev => ({ ...prev, churchId }))}
@@ -258,18 +257,19 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
         </div>
 
         <div>
-          <label className="label">
-            <span className="label-text">Habitación</span>
-          </label>
+          <label className="block mb-2 font-medium">Habitación</label>
           <RoomSelector
-            value={formData.roomId ?? 0}
+            value={formData.roomId ?? null}
             onChange={(roomId) => setFormData(prev => ({ ...prev, roomId }))}
           />
         </div>
       </div>
 
-      <div className="flex justify-end mt-6">
-        <button type="submit" className="btn btn-primary w-full md:w-auto">
+      <div className="mt-6 flex justify-end">
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
           Actualizar Campista
         </button>
       </div>

@@ -51,6 +51,7 @@ const RoomTable: React.FC = () => {
         <thead>
           <tr>
             <th>Nombre</th>
+            <th>Genero</th>
             <th>Capacidad Máxima</th>
             <th>Ocupación Actual</th>
             <th>Disponibilidad</th>
@@ -61,10 +62,11 @@ const RoomTable: React.FC = () => {
           {rooms.map((room) => (
             <tr key={room.id}>
               <td>{room.name}</td>
-              <td>{room.MaxCapacity}</td>
-              <td>{room.CurrentCapacity}</td>
+              <td>{room.gender}</td>
+              <td>{room.maxCapacity}</td>
+              <td>{room.currentCapacity}</td>
               <td>
-                {room.CurrentCapacity < room.MaxCapacity ? (
+                {room.currentCapacity < room.maxCapacity ? (
                   <span className="badge badge-success">Disponible</span>
                 ) : (
                   <span className="badge badge-error">Llena</span>

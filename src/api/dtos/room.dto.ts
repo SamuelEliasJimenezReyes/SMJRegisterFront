@@ -1,21 +1,24 @@
-import type {CamperDTOSimpleDto } from "./camper.dto";
+import type {CamperSimpleDto } from "./camper.dto";
 
 export interface RoomSimpleDto {
   id: number;
   name: string;
-  MaxCapacity: number;
-  CurrentCapacity: number;
+  gender: string;
+  maxCapacity: number;
+  currentCapacity: number;
 }
 
 export interface RoomDTO {
   id: number;
   name: string;
+  gender: string;
   maxCapacity: number;
   currentCapacity: number;
-  Campers: CamperDTOSimpleDto[];
+  campers: CamperSimpleDto[];
 }
 
 export interface CreateRoomDTO {
   Name: string;
-  Capacity: number;
+  gender: number;
+  capacity: number;
 }

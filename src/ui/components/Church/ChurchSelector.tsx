@@ -5,9 +5,10 @@ import { ChurchService } from '../../../api/services/church.service';
 interface ChurchSelectorProps {
   value: number;
   onChange: (churchId: number) => void;
+  conferenceId?: number;
 }
 
-const ChurchSelector: React.FC<ChurchSelectorProps> = ({ value, onChange }) => {
+const ChurchSelector: React.FC<ChurchSelectorProps> = ({ value, onChange, conferenceId }) => {
   const [churches, setChurches] = useState<ChurchSimpleDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +17,14 @@ const ChurchSelector: React.FC<ChurchSelectorProps> = ({ value, onChange }) => {
     const fetchChurches = async () => {
       try {
         const service = new ChurchService();
-        const data = await service.GetAllChurchesAsync();
+        let data: ChurchSimpleDTO[];
+
+        if (conferenceId) {
+          data = await service.GetChurchesByConferenceAsync(conferenceId);
+        } else {
+          data = await service.GetAllChurchesAsync();
+        }
+
         setChurches(data);
       } catch (err) {
         setError('Failed to fetch churches');
@@ -26,7 +34,7 @@ const ChurchSelector: React.FC<ChurchSelectorProps> = ({ value, onChange }) => {
       }
     };
     fetchChurches();
-  }, []);
+  }, [conferenceId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;

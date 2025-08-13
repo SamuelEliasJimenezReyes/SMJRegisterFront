@@ -5,51 +5,120 @@ import { RoomService } from '../../../api/services/room.services';
 interface RoomSelectorProps {
   value: number | null;
   onChange: (roomId: number | null) => void;
+  className?: string;
+  disabled?: boolean;
+  showGender?: boolean;
+  showCapacity?: boolean;
+  filterByGender?: number;
 }
 
-const RoomSelector: React.FC<RoomSelectorProps> = ({ value, onChange }) => {
+const RoomSelector: React.FC<RoomSelectorProps> = ({ 
+  value, 
+  onChange, 
+  className = '', 
+  disabled = false,
+  showGender = true,
+  showCapacity = false,
+  filterByGender
+}) => {
   const [rooms, setRooms] = useState<RoomSimpleDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const roomService = new RoomService();
+    let isMounted = true;
+
     const fetchRooms = async () => {
       try {
-        const service = new RoomService();
-        const data = await service.GetAllRoomsAsync();
-        setRooms(data);
+        const data = await roomService.GetAllRoomsAsync();
+        if (isMounted) {
+          const filteredRooms = filterByGender 
+            ? data.filter(room => room.gender === (filterByGender === 1 ? 'Masculino' : 'Femenino'))
+            : data;
+          setRooms(filteredRooms);
+        }
       } catch (err) {
-        setError('Error al cargar las habitaciones');
-        console.error(err);
+        if (isMounted) {
+          setError('Error al cargar las habitaciones');
+          console.error('Error fetching rooms:', err);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
-    fetchRooms();
-  }, []);
 
-  if (loading) return <div>Cargando habitaciones...</div>;
-  if (error) return <div>{error}</div>;
+    fetchRooms();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [filterByGender]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    onChange(selectedValue !== "0" ? parseInt(selectedValue) : null);
+  };
+
+  const getRoomDisplayText = (room: RoomSimpleDto) => {
+    let text = room.name;
+    
+    if (showGender && room.gender) {
+      text += ` (${room.gender})`;
+    }
+    
+    if (showCapacity) {
+      text += ` - ${room.currentCapacity}/${room.maxCapacity}`;
+    }
+    
+    return text;
+  };
+
+  if (loading) {
+    return (
+      <div className={`p-1 ${className}`}>
+        <label className="label">
+          <span className="label-text">Cargando habitaciones...</span>
+        </label>
+        <select className="select select-bordered w-full" disabled>
+          <option>Cargando...</option>
+        </select>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`p-1 ${className}`}>
+        <label className="label">
+          <span className="label-text text-error">{error}</span>
+        </label>
+        <select className="select select-bordered w-full" disabled>
+          <option>Error al cargar</option>
+        </select>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-1">
+    <div className={`p-1 ${className}`}>
       <label className="label">
         <span className="label-text">Seleccione una Habitación</span>
       </label>
       <select
-        className="select select-bordered w-full"
+        className={`select select-bordered w-full ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         value={value ?? 0}
-        onChange={(e) => {
-          const selectedValue = e.target.value;
-          onChange(selectedValue !== "0" ? Number(selectedValue) : null);
-        }}
+        onChange={handleChange}
+        disabled={disabled || rooms.length === 0}
       >
         <option value={0} disabled>
-          Escoge una habitación
+          {rooms.length === 0 ? 'No hay habitaciones disponibles' : 'Seleccione una habitación'}
         </option>
         {rooms.map((room) => (
-          <option key={room.id} value={room.id} className='bold'>
-            {room.name}
+          <option key={room.id} value={room.id}>
+            {getRoomDisplayText(room)}
           </option>
         ))}
       </select>

@@ -1,4 +1,4 @@
-import type { CreateRoomDTO, RoomDTO, RoomSimpleDto } from "../dtos/room.dto";
+import type { RoomSimpleDto, RoomDTO, CreateRoomDTO } from "../dtos/room.dto";
 
 export interface IRoomService {
   GetAllRoomsAsync(): Promise<RoomSimpleDto[]>;

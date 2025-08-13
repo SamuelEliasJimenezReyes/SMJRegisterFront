@@ -1,4 +1,4 @@
-import React ,{ useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import type { CreateCamperDTO } from '../../../api/dtos/camper.dto';
 import { CamperService } from '../../../api/services/camper.service';
 import ChurchSelector from '../Church/ChurchSelector';
@@ -8,7 +8,9 @@ const CreateCamperForm: React.FC = () => {
   const [formData, setFormData] = useState<CreateCamperDTO>({
     name: "",
     lastName: "",
-    documentNumber: "",
+    phoneNumber: "",
+    coments: "",
+    age: undefined,
     paidAmount: 0,
     isGrant: false,
     grantedAmount: 0,
@@ -18,28 +20,29 @@ const CreateCamperForm: React.FC = () => {
     churchId: 0,
     roomId: undefined,
     code: "",
-    paidType: 0,
+    payType: 0,
     documents: [],
     shirtSize: 0,
-    arrivedTime: new Date().toISOString(),
+    arrivedTimeSlot: 0,
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [selectedChurchId, setSelectedChurchId] = useState<number>(0);
-const [selectedConferenceId, setSelectedConferenceId] = useState<number | null>(null);
-const [conferences, setConferences] = useState<{ id: number; name: string }[]>([]);
+  const [selectedConferenceId, setSelectedConferenceId] = useState<number | null>(null);
+  const [conferences, setConferences] = useState<{ id: number; name: string }[]>([]);
 
-
-
-const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+ const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+) => {
   const { name, value, type } = e.target;
-  const newValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+  const newValue = type === 'checkbox' 
+    ? (e.target as HTMLInputElement).checked 
+    : value;
 
   setFormData((prev) => ({
     ...prev,
-    [name]: newValue,
+    [name]: type === 'number' ? Number(newValue) : newValue,
   }));
 };
 
@@ -55,29 +58,27 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     } catch (error) {
       setError('Error al crear el campista');
       console.error(error);
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
-  }
+  };
+
   useEffect(() => {
-  setConferences([
-    { id: 1, name: 'NorthWest' },
-    { id: 2, name: 'SouthEast' },
-    { id: 3, name: 'Central' },
-  ]);
-}, []);
+    setConferences([
+      { id: 1, name: 'NorthWest' },
+      { id: 2, name: 'SouthEast' },
+      { id: 3, name: 'Central' },
+    ]);
+  }, []);
 
-
- const handleChurchChange = (churchId: number) => {
+  const handleChurchChange = (churchId: number) => {
     setFormData((prev) => ({
       ...prev,
       churchId: churchId,
     }));
   };
 
-
-    return (
+  return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-6 bg-base-100 shadow-xl rounded-xl">
       <h2 className="text-2xl font-bold">Registrar Campista</h2>
 
@@ -102,19 +103,45 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
       />
 
       <input
-        name="documentNumber"
+        name="phoneNumber"
         type="text"
-        placeholder="Número de Documento"
+        placeholder="Número de Teléfono"
         className="input input-bordered w-full"
-        value={formData.documentNumber}
+        value={formData.phoneNumber}
         onChange={handleChange}
         required
       />
 
+      <input
+        name="age"
+        type="number"
+        placeholder="Edad"
+        className="input input-bordered w-full"
+        value={formData.age}
+        onChange={handleChange}
+        required
+      />
+
+    <select
+        name="shirtSize"
+        className="select select-bordered w-full"
+        value={formData.shirtSize}
+        onChange={handleChange}
+        required
+      >
+        <option value={0} disabled>Seleccione un tamaño de camiseta</option>
+        <option value={1}>XS</option>
+        <option value={2}>S</option>
+        <option value={3}>M</option>
+        <option value={4}>L</option>
+        <option value={5}>XL</option>
+        <option value={6}>XXL</option>
+        <option value={7}>XXXL</option>
+      </select>
 
       <div className="form-control">
         <label className="label cursor-pointer">
-          <span className="label-text">¿Tiene codigo?</span>
+          <span className="label-text">¿Tiene código de cupon?</span>
           <input
             type="checkbox"
             name="isGrant"
@@ -124,8 +151,31 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
           />
         </label>
       </div>
+      {formData.isGrant && (
+          <input
+            name="code"
+            type="text"
+            placeholder="Código de cupon"
+            className="input input-bordered w-full"
+            value={formData.code ?? ""}
+            onChange={handleChange}
+            required
+          />
+        )}
 
-
+        <select
+        name="arrivedTimeSlot"
+        className="select select-bordered w-full"
+        value={formData.arrivedTimeSlot}
+        onChange={handleChange}
+        required
+      >
+        <option value={0} disabled>Seleccione un dia de llegada</option>
+        <option value={1}>Sabado Mañana</option>
+        <option value={2}>Sabado Tarde</option>
+        <option value={3}>Domingo</option>
+        <option value={4}>Lunes</option>
+      </select>
       <select
         name="gender"
         className="select select-bordered w-full"
@@ -133,9 +183,7 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
         onChange={handleChange}
         required
       >
-        <option value={0} disabled>
-          Seleccione Género
-        </option>
+        <option value={0} disabled>Seleccione Género</option>
         <option value={1}>Hombre</option>
         <option value={2}>Mujer</option>
       </select>
@@ -147,30 +195,16 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
         onChange={handleChange}
         required
       >
-        <option value={0} disabled>
-          Seleccione Condición
-        </option>
+        <option value={0} disabled>Seleccione Condición</option>
         <option value={1}>Campista</option>
         <option value={2}>Staff</option>
         <option value={3}>Directivo</option>
+        <option value={4}>Danzarina</option>
       </select>
 
-    <ChurchSelector value={formData.churchId} onChange={handleChurchChange}/>
-
-      {formData.isGrant && (
-        <input
-          name="code"
-          type="text"
-          placeholder="Código de beca"
-          className="input input-bordered w-full"
-          value={formData.code ?? ""}
-          onChange={handleChange}
-          required 
-        />
-      )}
-
+       
       <div className="mt-4">
-        <label className="label font-semibold">Seleccione una conferencia para ver las cuentas bancarias:</label>
+        <label className="label font-semibold">Seleccione una conferencia:</label>
         <select
           className="select select-bordered w-full"
           value={selectedConferenceId ?? ''}
@@ -182,58 +216,48 @@ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
           ))}
         </select>
 
-        <BankInfoDisplay conferenceId={selectedConferenceId} />
+      <ChurchSelector
+        value={formData.churchId}
+        onChange={handleChurchChange}
+        conferenceId={selectedConferenceId ?? undefined}
+      />
       </div>
 
-
       <select
-        name="paidType"
+        name="payType"
         className="select select-bordered w-full"
-        value={formData.paidType}
+        value={formData.payType}
         onChange={handleChange}
         required
       >
-        <option value={0} disabled>
-          Seleccione un metodo de pago 
-        </option>
+        <option value={0} disabled>Seleccione un método de pago</option>
         <option value={1}>Transferencia</option>
-        <option value={2}>Atravez de un directivo</option>
+        <option value={2}>A través de un directivo</option>
       </select>
 
-      <select
-        name="shirtSize"
-        className="select select-bordered w-full"
-        value={formData.shirtSize}
+      <textarea
+        name="coments"
+        placeholder="Comentarios"
+        className="textarea textarea-bordered w-full"
+        value={formData.coments}
         onChange={handleChange}
-        required
-      >
-        <option value={0} disabled>
-          Seleccione un tamaño de camiseta 
-        </option>
-        <option value={1}>XS</option>
-        <option value={2}>S</option>
-        <option value={3}>M</option>
-        <option value={4}>L</option>
-        <option value={5}>XL</option>
-        <option value={6}>XXL</option>
-        <option value={7}>XXXL</option>
-      </select>
+      />
+        <BankInfoDisplay conferenceId={selectedConferenceId} />
 
       <input
-      type="file"
-      name="documents"
-      multiple
-      accept=".pdf,.jpg,.jpeg,.png"
-      className="file-input file-input-success w-full"
-      onChange={(e) => {
-        const files = Array.from(e.target.files ?? []);
-        setFormData((prev) => ({
-          ...prev,
-          documents: files, 
-        }));
-      }}
-    />
-
+        type="file"
+        name="documents"
+        multiple
+        accept=".pdf,.jpg,.jpeg,.png"
+        className="file-input file-input-success w-full"
+        onChange={(e) => {
+          const files = Array.from(e.target.files ?? []);
+          setFormData((prev) => ({
+            ...prev,
+            documents: files,
+          }));
+        }}
+      />
 
       <button type="submit" className={`btn btn-primary w-full ${loading ? "loading" : ""}`}>
         {loading ? "Registrando..." : "Registrar"}

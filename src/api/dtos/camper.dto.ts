@@ -1,29 +1,34 @@
 import type { ChurchSimpleDTO } from "./church.dto";
-import type { GrantedCodeDto } from "./granted-code.dto";
+import type { GrantedCodeSimpleDTO } from "./granted-code.dto.ts";
 import type { RoomSimpleDto } from "./room.dto";
 
 export interface CreateCamperDTO {
   name: string;
   lastName: string;
-  documentNumber: string;
+  phoneNumber: string;
+  coments: string;
+  age?: number;
   paidAmount: number;
   isGrant: boolean;
   grantedAmount: number;
   isPaid: boolean;
+  documents?: File[];
   gender: number;
   condition: number;
+  payType: number;
+  shirtSize: number;
+  arrivedTimeSlot: number;
   churchId: number;
   roomId?: number;
   code?: string;
-  shirtSize: number;
-  arrivedTime: string; 
-  paidType: number; 
-  documents: File[]; 
 }
+
 export interface CamperDTO {
   name: string;
   lastName: string;
-  documentNumber: string;
+  phoneNumber: string;
+  age: number;
+  coments: string;
   paidAmount: number;
   isGrant: boolean;
   isPaid: boolean;
@@ -31,32 +36,31 @@ export interface CamperDTO {
   condition: string;
   payType: string;
   shirtSize: string;
-  arrivedTime: string;
-  arrivedTimeHumanized: string;
+  arrivedTimeSlot: string;
   documentsURL?: string[];
   church: ChurchSimpleDTO;
-  grantedCode?: GrantedCodeDto;
+  grantedCode?: GrantedCodeSimpleDTO; 
   room?: RoomSimpleDto;
 }
 
-
-export interface CamperDTOSimpleDto {
- id: number;
+export interface CamperSimpleDto {
+  id: number;
   name: string;
   lastName: string;
-  documentNumber: string;
+  phoneNumber: string;
   isGrant: boolean;
   gender: string;
   condition: string;
   payType: string;
   shirtSize: string;
-  arrivedTime: string;
-  arrivedTimeHumanized: string;
+  arrivedTimeSlot: string;
   church: ChurchSimpleDTO;
 }
+
 export interface UpdateCamperDTO {
   name: string;
   lastName: string;
+  age: number;
   paidAmount: number;
   isGrant: boolean;
   isPaid: boolean;

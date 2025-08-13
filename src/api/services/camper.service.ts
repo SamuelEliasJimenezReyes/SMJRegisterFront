@@ -1,98 +1,53 @@
-import axios from 'axios';
-import type { CamperDTO , CamperDTOSimpleDto, CreateCamperDTO, UpdateCamperDTO } from "../dtos/camper.dto";
-import type { ICamperService } from './Icamper.service';
-
-const baseURL = 'http://localhost:5224/camper';
+import axiosInstance from "../auth/axiosInstance.ts";
+import type { CamperDTO, CamperSimpleDto, CreateCamperDTO, UpdateCamperDTO } from "../dtos/camper.dto";
+import type { ICamperService } from "./Icamper.service.ts";
 
 export class CamperService implements ICamperService {
-
-  async GetAllCampersAsync(): Promise<CamperDTOSimpleDto[]> {
-    try {
-      const result = await axios.get<CamperDTOSimpleDto[]>(baseURL);
-      console.log("Fetched campers:", result.data);
-      return result.data;
-    } catch (error) {
-      console.error("Error fetching campers:", error);
-      return Promise.reject(error);
-    }
+  async GetAllCampersAsync(): Promise<CamperSimpleDto[]> {
+    const result = await axiosInstance.get<CamperSimpleDto[]>("/camper");
+    return result.data;
   }
 
   async GetCamperByIdAsync(id: number): Promise<CamperDTO> {
-    try {
-      const result = await axios.get<CamperDTO>(`${baseURL}/${id}`);
-      console.log("Fetched camper by ID:", result.data);
-      return result.data;
-    } catch (error) {
-      console.log(`Error fetching camper with ID ${id}:`, error);
-      return Promise.reject(`Error fetching camper with ID ${id}: ${error}`);
-    }
+    const result = await axiosInstance.get<CamperDTO>(`/camper/${id}`);
+    return result.data;
   }
 
+    async CreateCamperAsync(camper: CreateCamperDTO): Promise<void> {
+      const formData = new FormData();
+        Object.entries(camper).forEach(([key, value]) => {
+        if (key === 'documents' && Array.isArray(value)) {
+          value.forEach((file: File) => {
+            formData.append('documents', file);
+          });
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value instanceof Blob ? value : String(value));
+        }
+      });
 
-async CreateCamperAsync(camper: CreateCamperDTO): Promise<void> {
-  try {
-    const formData = new FormData();
-
-    formData.append('Name', camper.name);
-    formData.append('LastName', camper.lastName);
-    formData.append('DocumentNumber', camper.documentNumber);
-    formData.append('PaidAmount', camper.paidAmount.toString());
-    formData.append('IsGrant', camper.isGrant.toString());
-    formData.append('GrantedAmount', camper.grantedAmount.toString());
-    formData.append('IsPaid', camper.isPaid.toString());
-    formData.append('Gender', camper.gender.toString());
-    formData.append('Condition', camper.condition.toString());
-    formData.append('ChurchId', camper.churchId.toString());
-    formData.append('PaidType', camper.paidType.toString());
-    formData.append('ArrivedTime', camper.arrivedTime.toString());
-    formData.append('ShirtSize', camper.shirtSize.toString());
-
-
-    if (camper.roomId !== null && camper.roomId !== undefined) {
-      formData.append('RoomId', camper.roomId.toString());
-    }
-
-    if (camper.code) {
-      formData.append('Code', camper.code);
-    }
-
-
-    camper.documents.forEach((file: File, index: number) => {
-      formData.append('Documents', file);
-    });
-
-    const result = await axios.post(baseURL, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    if (result.status === 201 || result.status === 204) {
-      console.log("Camper created successfully");
-    }
-  } catch (error) {
-    console.error("Error creating camper:", error);
-    return Promise.reject(error);
-  }
+  await axiosInstance.post("/camper", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
-async UpdateCamperAsync(id: number, camper: UpdateCamperDTO): Promise<void> {
-  try {
-    const payload = {
-      ...camper,
-      gender: camper.gender || 1,
-      condition: camper.condition || 1,
-      payType: camper.payType || 1,
-      shirtSize: camper.shirtSize || 1,
-      roomId: camper.roomId || null
-    };
-    
-    const result = await axios.put(`http://localhost:5224/camper/${id}`, payload);
-    if (result.status === 200) {
-      console.log("Camper updated successfully");
-    }
-  } catch (error) {
-    console.error("Error updating camper:", error);
-    return Promise.reject(error);
+
+  async GetAllByConditionAsync(condition: number): Promise<CamperDTO[]> {
+    const result = await axiosInstance.get<CamperDTO[]>(`/camper/get-by-condition${condition}`);
+    return result.data;
   }
-}
+
+  async GetAllByChurchIdAsync(churchId: number): Promise<CamperDTO[]> {
+    const result = await axiosInstance.get<CamperDTO[]>(`/camper/get-by-church/${churchId}`);
+    return result.data;
+  }
+
+  async GetAllByConferenceAsync(conference: number): Promise<CamperDTO[]> {
+    const result = await axiosInstance.get<CamperDTO[]>(`/camper/get-by-conference/${conference}`);
+    return result.data;
+  }
+
+  async UpdateCamperAsync(id: number, camper: UpdateCamperDTO): Promise<void> {
+    await axiosInstance.put(`/camper/${id}`, camper);
+  }
 }
