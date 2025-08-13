@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CamperService } from '../../../api/services/camper.service';
-import type { UpdateCamperDTO, CamperDTO } from '../../../api/dtos/camper.dto';
+import type { UpdateCamperDTO } from '../../../api/dtos/camper.dto';
 import ChurchSelector from '../Church/ChurchSelector';
 import RoomSelector from '../Room/RoomSelector';
 
