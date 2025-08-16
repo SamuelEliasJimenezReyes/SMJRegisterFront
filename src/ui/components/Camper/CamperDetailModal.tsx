@@ -33,23 +33,24 @@ const CamperDetailModal: React.FC<CamperDetailModalProps> = ({ camper, onClose }
           <p><strong>Conferencia:</strong> {camper.church?.conference || 'No especificada'}</p>
           <p><strong>Hora de llegada:</strong> {camper.arrivedTimeSlot}</p>
           <p><strong>Habitacion:</strong> {camper.room?.name || 'No asignada'}</p>
+            <div>
+              <strong>Documento:</strong>
+              {camper.documentsURL ? (
+                <p>
+                  <a
+                    href={camper.documentsURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    Ver documento
+                  </a>
+                </p>
+              ) : (
+                <p>No hay documento disponible.</p>
+              )}
+            </div>
 
-          <div>
-            <strong>Documentos:</strong>
-            {camper.documentsURL && camper.documentsURL.length > 0 ? (
-              <ul className="list-disc ml-5 mt-1">
-                {camper.documentsURL.map((url, index) => (
-                  <li key={index}>
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                      Documento {index + 1}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No hay documentos disponibles.</p>
-            )}
-          </div>
         </div>
       </div>
     </div>

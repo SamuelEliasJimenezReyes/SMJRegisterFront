@@ -12,7 +12,7 @@ export interface CreateCamperDTO {
   isGrant: boolean;
   grantedAmount: number;
   isPaid: boolean;
-  documents?: File[];
+  document?: File;
   gender: number;
   condition: number;
   payType: number;
@@ -37,7 +37,7 @@ export interface CamperDTO {
   payType: string;
   shirtSize: string;
   arrivedTimeSlot: string;
-  documentsURL?: string[];
+  documentsURL?: string;
   church: ChurchSimpleDTO;
   grantedCode?: GrantedCodeSimpleDTO; 
   room?: RoomSimpleDto;

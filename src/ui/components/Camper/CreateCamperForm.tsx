@@ -21,7 +21,7 @@ const CreateCamperForm: React.FC = () => {
     roomId: undefined,
     code: "",
     payType: 0,
-    documents: [],
+    document: undefined,
     shirtSize: 0,
     arrivedTimeSlot: 0,
   });
@@ -65,8 +65,8 @@ const CreateCamperForm: React.FC = () => {
 
   useEffect(() => {
     setConferences([
-      { id: 1, name: 'NorthWest' },
-      { id: 2, name: 'SouthEast' },
+      { id: 1, name: 'Noroeste' },
+      { id: 2, name: 'Sureste' },
       { id: 3, name: 'Central' },
     ]);
   }, []);
@@ -116,6 +116,8 @@ const CreateCamperForm: React.FC = () => {
         name="age"
         type="number"
         placeholder="Edad"
+        pattern="[0-9]*" 
+        inputMode="numeric"
         className="input input-bordered w-full"
         value={formData.age}
         onChange={handleChange}
@@ -239,22 +241,22 @@ const CreateCamperForm: React.FC = () => {
         name="coments"
         placeholder="Comentarios"
         className="textarea textarea-bordered w-full"
+        style={{ resize: 'none' }}
         value={formData.coments}
         onChange={handleChange}
       />
         <BankInfoDisplay conferenceId={selectedConferenceId} />
 
-      <input
+       <input
         type="file"
-        name="documents"
-        multiple
+        name="document"
         accept=".pdf,.jpg,.jpeg,.png"
         className="file-input file-input-success w-full"
         onChange={(e) => {
-          const files = Array.from(e.target.files ?? []);
+          const file = e.target.files?.[0];
           setFormData((prev) => ({
             ...prev,
-            documents: files,
+            document: file,
           }));
         }}
       />
