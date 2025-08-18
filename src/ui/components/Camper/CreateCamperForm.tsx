@@ -31,33 +31,38 @@ const CreateCamperForm: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [selectedConferenceId, setSelectedConferenceId] = useState<number | null>(null);
   const [conferences, setConferences] = useState<{ id: number; name: string }[]>([]);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
 
- const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-) => {
-  const { name, value, type } = e.target;
-  const newValue = type === 'checkbox' 
-    ? (e.target as HTMLInputElement).checked 
-    : value;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, type } = e.target;
+    const newValue = type === 'checkbox'
+      ? (e.target as HTMLInputElement).checked
+      : value;
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: type === 'number' ? Number(newValue) : newValue,
-  }));
-};
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'number' ? Number(newValue) : newValue,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(false);
+    setValidationErrors({});
 
     try {
       await new CamperService().CreateCamperAsync(formData);
       setSuccess(true);
-    } catch (error) {
-      setError('Error al crear el campista');
-      console.error(error);
+    } catch (err: any) {
+      if (err.response?.status === 400 && err.response.data?.errors) {
+        setValidationErrors(err.response.data.errors);
+      } else {
+        setError("Error al crear el campista");
+      }
     } finally {
       setLoading(false);
     }
@@ -78,6 +83,10 @@ const CreateCamperForm: React.FC = () => {
     }));
   };
 
+  const getError = (field: string) => {
+    return validationErrors[field]?.[0];
+  };
+
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-6 bg-base-100 shadow-xl rounded-xl">
       <h2 className="text-2xl font-bold">Registrar Campista</h2>
@@ -89,8 +98,8 @@ const CreateCamperForm: React.FC = () => {
         className="input input-bordered w-full"
         value={formData.name}
         onChange={handleChange}
-        required
       />
+      {getError("Camper.Name") && <p className="text-red-500 text-sm">{getError("Camper.Name")}</p>}
 
       <input
         name="lastName"
@@ -99,8 +108,8 @@ const CreateCamperForm: React.FC = () => {
         className="input input-bordered w-full"
         value={formData.lastName}
         onChange={handleChange}
-        required
       />
+      {getError("Camper.LastName") && <p className="text-red-500 text-sm">{getError("Camper.LastName")}</p>}
 
       <input
         name="phoneNumber"
@@ -109,22 +118,22 @@ const CreateCamperForm: React.FC = () => {
         className="input input-bordered w-full"
         value={formData.phoneNumber}
         onChange={handleChange}
-        required
       />
+      {getError("Camper.PhoneNumber") && <p className="text-red-500 text-sm">{getError("Camper.PhoneNumber")}</p>}
 
       <input
         name="age"
-        type="number"
+        type="text"
         placeholder="Edad"
-        pattern="[0-9]*" 
-        inputMode="numeric"
-        className="input input-bordered w-full"
+        pattern="[0-9]*"
+        className="input input-bordered w-full mb-4"
         value={formData.age}
         onChange={handleChange}
         required
       />
+      {getError("Camper.Age") && <p className="text-red-500 text-sm">{getError("Camper.Age")}</p>}
 
-    <select
+      <select
         name="shirtSize"
         className="select select-bordered w-full"
         value={formData.shirtSize}
@@ -132,14 +141,19 @@ const CreateCamperForm: React.FC = () => {
         required
       >
         <option value={0} disabled>Seleccione un tamaño de camiseta</option>
-        <option value={1}>XS</option>
-        <option value={2}>S</option>
-        <option value={3}>M</option>
-        <option value={4}>L</option>
-        <option value={5}>XL</option>
-        <option value={6}>XXL</option>
-        <option value={7}>XXXL</option>
+        <option value={1}>10</option>
+        <option value={2}>12</option>
+        <option value={3}>14</option>
+        <option value={4}>16</option>
+        <option value={5}>XS</option>
+        <option value={6}>S</option>
+        <option value={7}>M</option>
+        <option value={8}>L</option>
+        <option value={9}>XL</option>
+        <option value={10}>XXL</option>
+        <option value={11}>XXXL</option>
       </select>
+      {getError("Camper.ShirtSize") && <p className="text-red-500 text-sm">{getError("Camper.ShirtSize")}</p>}
 
       <div className="form-control">
         <label className="label cursor-pointer">
@@ -154,6 +168,7 @@ const CreateCamperForm: React.FC = () => {
         </label>
       </div>
       {formData.isGrant && (
+        <>
           <input
             name="code"
             type="text"
@@ -163,9 +178,11 @@ const CreateCamperForm: React.FC = () => {
             onChange={handleChange}
             required
           />
-        )}
+          {getError("Camper.Code") && <p className="text-red-500 text-sm">{getError("Camper.Code")}</p>}
+        </>
+      )}
 
-        <select
+      <select
         name="arrivedTimeSlot"
         className="select select-bordered w-full"
         value={formData.arrivedTimeSlot}
@@ -178,6 +195,8 @@ const CreateCamperForm: React.FC = () => {
         <option value={3}>Domingo</option>
         <option value={4}>Lunes</option>
       </select>
+      {getError("Camper.ArrivedTimeSlot") && <p className="text-red-500 text-sm">{getError("Camper.ArrivedTimeSlot")}</p>}
+
       <select
         name="gender"
         className="select select-bordered w-full"
@@ -189,6 +208,7 @@ const CreateCamperForm: React.FC = () => {
         <option value={1}>Hombre</option>
         <option value={2}>Mujer</option>
       </select>
+      {getError("Camper.Gender") && <p className="text-red-500 text-sm">{getError("Camper.Gender")}</p>}
 
       <select
         name="condition"
@@ -203,8 +223,8 @@ const CreateCamperForm: React.FC = () => {
         <option value={3}>Directivo</option>
         <option value={4}>Danzarina</option>
       </select>
+      {getError("Camper.Condition") && <p className="text-red-500 text-sm">{getError("Camper.Condition")}</p>}
 
-       
       <div className="mt-4">
         <label className="label font-semibold">Seleccione una conferencia:</label>
         <select
@@ -218,12 +238,13 @@ const CreateCamperForm: React.FC = () => {
           ))}
         </select>
 
-      <ChurchSelector
-        value={formData.churchId}
-        onChange={handleChurchChange}
-        conferenceId={selectedConferenceId ?? undefined}
-      />
+        <ChurchSelector
+          value={formData.churchId}
+          onChange={handleChurchChange}
+          conferenceId={selectedConferenceId ?? undefined}
+        />
       </div>
+      {getError("Camper.ChurchId") && <p className="text-red-500 text-sm">{getError("Camper.ChurchId")}</p>}
 
       <select
         name="payType"
@@ -236,6 +257,7 @@ const CreateCamperForm: React.FC = () => {
         <option value={1}>Transferencia</option>
         <option value={2}>A través de un directivo</option>
       </select>
+      {getError("Camper.PayType") && <p className="text-red-500 text-sm">{getError("Camper.PayType")}</p>}
 
       <textarea
         name="coments"
@@ -245,9 +267,11 @@ const CreateCamperForm: React.FC = () => {
         value={formData.coments}
         onChange={handleChange}
       />
-        <BankInfoDisplay conferenceId={selectedConferenceId} />
+      {getError("Camper.Coments") && <p className="text-red-500 text-sm">{getError("Camper.Coments")}</p>}
 
-       <input
+      <BankInfoDisplay conferenceId={selectedConferenceId} />
+
+      <input
         type="file"
         name="document"
         accept=".pdf,.jpg,.jpeg,.png"
@@ -260,6 +284,7 @@ const CreateCamperForm: React.FC = () => {
           }));
         }}
       />
+      {getError("Camper.Document") && <p className="text-red-500 text-sm">{getError("Camper.Document")}</p>}
 
       <button type="submit" className={`btn btn-primary w-full ${loading ? "loading" : ""}`}>
         {loading ? "Registrando..." : "Registrar"}

@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { BankInformationDTO } from '../dtos/bankinformation.dto';
 import type { IBankInformationService } from './Ibank-information.services.ts';
 
-const baseURL = 'http://localhost:5224/bank-information';
+const baseURL = 'https://smjregisterapiv2-dev.up.railway.app/bank-information';
 
 export class BankInformationService implements IBankInformationService {
   async GetAllBankInformationAsync(): Promise<BankInformationDTO[]> {
