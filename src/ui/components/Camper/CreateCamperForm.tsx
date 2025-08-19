@@ -86,6 +86,12 @@ const CreateCamperForm: React.FC = () => {
   const getError = (field: string) => {
     return validationErrors[field]?.[0];
   };
+  const formatPhoneNumber = (value: string) => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 3) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+};
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-6 bg-base-100 shadow-xl rounded-xl">
@@ -111,15 +117,23 @@ const CreateCamperForm: React.FC = () => {
       />
       {getError("Camper.LastName") && <p className="text-red-500 text-sm">{getError("Camper.LastName")}</p>}
 
-      <input
+        <input
         name="phoneNumber"
         type="text"
         placeholder="Número de Teléfono"
         className="input input-bordered w-full"
-        value={formData.phoneNumber}
-        onChange={handleChange}
+        value={formatPhoneNumber(formData.phoneNumber)}
+        onChange={(e) => {
+          const rawValue = e.target.value.replace(/\D/g, "");
+          setFormData((prev) => ({
+            ...prev,
+            phoneNumber: rawValue,
+          }));
+        }}
       />
-      {getError("Camper.PhoneNumber") && <p className="text-red-500 text-sm">{getError("Camper.PhoneNumber")}</p>}
+      {getError("Camper.PhoneNumber") && (
+        <p className="text-red-500 text-sm">{getError("Camper.PhoneNumber")}</p>
+      )}
 
       <input
         name="age"
