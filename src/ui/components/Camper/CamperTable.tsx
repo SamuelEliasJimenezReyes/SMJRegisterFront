@@ -108,7 +108,6 @@ const CamperTable: React.FC = () => {
         <CamperDetailModal camper={selectedCamper} onClose={handleCloseModal} />
       )}
       
-      {/* Modal de Actualización */}
       {camperToUpdate && (
         <div className="modal modal-open">
           <div className="modal-box">
