@@ -117,14 +117,19 @@ const CreateCamperForm: React.FC = () => {
       />
       {getError("Camper.LastName") && <p className="text-red-500 text-sm">{getError("Camper.LastName")}</p>}
 
-        <input
-        name="phoneNumber"
-        type="text"
-        placeholder="Número de Teléfono"
-        className="input input-bordered w-full"
-        value={formatPhoneNumber(formData.phoneNumber)}
+            <input
+          name="phoneNumber"
+          type="text"
+          placeholder="Número de Teléfono"
+          className="input input-bordered w-full"
+          value={
+          formData.phoneNumber
+            ? `(${formData.phoneNumber.slice(0, 3)}) ${formData.phoneNumber.slice(3, 6)}${formData.phoneNumber.length > 6 ? '-' + formData.phoneNumber.slice(6, 10) : ''}`
+            : ''
+          }
         onChange={(e) => {
-          const rawValue = e.target.value.replace(/\D/g, "");
+          let rawValue = e.target.value.replace(/\D/g, "");
+          if (rawValue.length > 10) rawValue = rawValue.slice(0, 10);
           setFormData((prev) => ({
             ...prev,
             phoneNumber: rawValue,
@@ -134,6 +139,7 @@ const CreateCamperForm: React.FC = () => {
       {getError("Camper.PhoneNumber") && (
         <p className="text-red-500 text-sm">{getError("Camper.PhoneNumber")}</p>
       )}
+
 
       <input
         name="age"
