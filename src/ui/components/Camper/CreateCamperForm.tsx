@@ -86,7 +86,7 @@ const CreateCamperForm: React.FC = () => {
   const getError = (field: string) => {
     return validationErrors[field]?.[0];
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-6 bg-base-100 shadow-xl rounded-xl">
       <h2 className="text-2xl font-bold">Registrar Campista</h2>
@@ -111,7 +111,7 @@ const CreateCamperForm: React.FC = () => {
       />
       {getError("Camper.LastName") && <p className="text-red-500 text-sm">{getError("Camper.LastName")}</p>}
 
-            <input
+          <input
           name="phoneNumber"
           type="text"
           placeholder="Número de Teléfono"
