@@ -13,7 +13,7 @@ export class PaymentService implements IPaymentService {
     formData.append("Amount", dto.amount.toString());
     if (dto.evidence) formData.append("Evidence", dto.evidence);
     if (dto.coments) formData.append("Coments", dto.coments);
-    formData.append("BanksInformationId", dto.banksInformationId.toString());
+    formData.append("BanksInformationId", (dto.banksInformationId ?? 0).toString());
     formData.append("CamperId", dto.camperId.toString());
 
     await axiosInstance.post("/payments", formData, {

@@ -8,4 +8,5 @@ export interface ICamperService {
   GetAllByChurchIdAsync(churchId: number): Promise<CamperDTO[]>;
   GetAllByConferenceAsync(conference: number): Promise<CamperDTO[]>;
   UpdateCamperAsync(id: number, camper: UpdateCamperDTO): Promise<void>;
+    SearchCampersAsync(filter?: string): Promise<CamperSimpleDto[]>;
 }

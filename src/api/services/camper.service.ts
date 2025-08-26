@@ -49,4 +49,11 @@ export class CamperService implements ICamperService {
   async UpdateCamperAsync(id: number, camper: UpdateCamperDTO): Promise<void> {
     await axiosInstance.put(`/camper/${id}`, camper);
   }
+  
+  async SearchCampersAsync(filter?: string): Promise<CamperSimpleDto[]> {
+    const result = await axiosInstance.get<CamperSimpleDto[]>("/camper/search", {
+      params: { filter },
+    });
+    return result.data;
+  }
 }

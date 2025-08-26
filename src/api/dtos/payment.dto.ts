@@ -5,7 +5,8 @@ export interface CreatePaymentDto {
   amount: number;
   evidence?: File;
   coments?: string;
-  banksInformationId: number;
+  isCash: boolean;
+  banksInformationId?: number;
   camperId: number;
 }
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://smjregisterapiv2-production.up.railway.app",
+  baseURL: "https://smjregisterapiv2-dev.up.railway.app",
 });
 
 axiosInstance.interceptors.request.use(
