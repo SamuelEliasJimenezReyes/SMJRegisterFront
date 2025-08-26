@@ -5,43 +5,63 @@ import { CamperService } from "../../../api/services/camper.service";
 interface CamperSelectorProps {
   value: number;
   onChange: (camperId: number) => void;
-  filter?: string;
 }
 
-const CamperSelector: React.FC<CamperSelectorProps> = ({ value, onChange, filter }) => {
+const CamperSelector: React.FC<CamperSelectorProps> = ({ value, onChange }) => {
   const [campers, setCampers] = useState<CamperSimpleDto[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
     const fetchCampers = async () => {
+      if (!search.trim()) {
+        setCampers([]);
+        return;
+      }
+
+      setLoading(true);
       try {
         const service = new CamperService();
-        const data = await service.SearchCampersAsync(filter);
+        const data = await service.SearchCampersAsync(search);
         setCampers(data);
+        setError(null);
       } catch (err) {
-        setError("Error al obtener campers");
+        setError("Error al obtener campistas");
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCampers();
-  }, [filter]);
+    const delayDebounce = setTimeout(() => {
+      fetchCampers();
+    }, 500);
 
-  if (loading) return <div>Loading campers...</div>;
-  if (error) return <div>{error}</div>;
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
 
   return (
     <div className="p-1">
       <label className="label">
-        <span className="label-text">Seleccione un Campista</span>
+        <span className="label-text">Buscar campista</span>
       </label>
+      <input
+        type="text"
+        placeholder="Escribe nombre o teléfono..."
+        className="input input-bordered w-full mb-2"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {loading && <div>Buscando campistas...</div>}
+      {error && <div className="text-red-500">{error}</div>}
+
       <select
         className="select select-bordered w-full"
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
+        disabled={campers.length === 0}
       >
         <option value={0} disabled>
           Escoge un campista
