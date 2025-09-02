@@ -1,15 +1,13 @@
-// CreateGrantedCodeModal.tsx
 import React, { useState } from 'react';
 import type { CreateGrantedCodeDTO } from '../../../api/dtos/granted-code.dto';
 
 interface CreateGrantedCodeModalProps {
-  onSubmit: (dto: CreateGrantedCodeDTO) => Promise<void>; // Añadido Promise<void>
+  onSubmit: (dto: CreateGrantedCodeDTO) => Promise<void>;
   onCancel: () => void;
 }
 
 const CreateGrantedCodeModal: React.FC<CreateGrantedCodeModalProps> = ({ 
   onSubmit, 
-  onCancel 
 }) => {
   const [formData, setFormData] = useState<CreateGrantedCodeDTO>({
     grantAmount: 0,
@@ -27,7 +25,7 @@ const CreateGrantedCodeModal: React.FC<CreateGrantedCodeModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData); // Añadido await
+    await onSubmit(formData);
   };
 
   return (
@@ -60,9 +58,6 @@ const CreateGrantedCodeModal: React.FC<CreateGrantedCodeModalProps> = ({
       </div>
 
       <div className="modal-action">
-        <button type="button" className="btn" onClick={onCancel}>
-          Cancelar
-        </button>
         <button type="submit" className="btn btn-primary">
           Crear Código
         </button>

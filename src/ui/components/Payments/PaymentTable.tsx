@@ -1,39 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import { PaymentService } from '../../../api/services/payment.service';
-import type { CreatePaymentDto, PaymentDto } from '../../../api/dtos/payment.dto';
+import type { PaymentDto } from '../../../api/dtos/payment.dto';
 import CreatePaymentModal from './CreatePaymentModal';
 
 const PaymentTable: React.FC = () => {
   const [payments, setPayments] = useState<PaymentDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-
-  const fetchPayments = async () => {
-    try {
-      const service = new PaymentService();
-      const data = await service.getAllPaymentsAsync();
-      setPayments(data);
-    } catch (err) {
-      setError('Error al cargar los pagos');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [refresh, setRefresh] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchPayments();
-  }, []);
+    const fetchPayments = async () => {
+      try {
+        const service = new PaymentService();
+        const data = await service.getAllPaymentsAsync();
+        setPayments(data);
+      } catch (err) {
+        setError('No se pudieron obtener los pagos');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleCreatePayment = async (dto: CreatePaymentDto) => {
+    fetchPayments();
+  }, [refresh]);
+
+  const handleCreatePayment = async (dto: any) => {
     try {
       const service = new PaymentService();
       await service.createPaymentAsync(dto);
-      setShowCreateModal(false);
-      await fetchPayments();
-    } catch (err) {
-      console.error('Error al crear pago', err);
+      setRefresh(prev => !prev); 
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      console.error('Error al crear pago:', error);
+      throw error; 
+    }
+  };
+
+  const handleViewEvidence = (evidenceURL: string | null) => {
+    if (evidenceURL) {
+      window.open(evidenceURL, '_blank');
+    } else {
+      alert('No hay evidencia disponible para este pago');
     }
   };
 
@@ -46,50 +56,54 @@ const PaymentTable: React.FC = () => {
         <h2 className="text-xl font-bold">Registro de Pagos</h2>
         <button 
           className="btn btn-primary"
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => setIsCreateModalOpen(true)}
         >
-          Registrar Pago
+          Registrar Nuevo Pago
         </button>
       </div>
 
       <table className="table table-zebra">
         <thead>
           <tr>
-            <th>Campista</th>
             <th>Monto</th>
+            <th>Método de Pago</th>
             <th>Banco</th>
-            <th>Comprobante</th>
             <th>Comentarios</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {payments.map((payment) => (
-            <tr key={`${payment.camper.id}-${payment.banksInformation.id}`}>
-              <td>{payment.camper.name} {payment.camper.lastName}</td>
+            <tr key={payment.id}>
               <td>${payment.amount.toFixed(2)}</td>
-              <td>{payment.banksInformation.bankName}</td>
+              <td>{payment.isCash ? 'Efectivo' : 'Transferencia'}</td>
               <td>
-                {payment.evidenceURL ? (
-                  <a 
-                    href={payment.evidenceURL} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="link link-primary"
-                  >
-                    Ver comprobante
-                  </a>
-                ) : 'N/A'}
+                {payment.isCash 
+                  ? 'N/A' 
+                  : (payment.banksInformation?.bankName || 'Banco no especificado')
+                }
               </td>
-              <td>{payment.coments || '-'}</td>
+              <td>{payment.coments || 'Sin comentarios'}</td>
+              <td>
+                <div className="flex gap-2">
+                  <button
+                    className="btn btn-sm btn-info"
+                    onClick={() => handleViewEvidence(payment.evidenceURL ?? 'No tiene')}
+                    title="Ver evidencia"
+                  >
+                    Ver Evidencia
+                  </button>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {showCreateModal && (
+      {isCreateModalOpen && (
         <CreatePaymentModal
           onSubmit={handleCreatePayment}
-          onCancel={() => setShowCreateModal(false)}
+          onCancel={() => setIsCreateModalOpen(false)}
         />
       )}
     </div>

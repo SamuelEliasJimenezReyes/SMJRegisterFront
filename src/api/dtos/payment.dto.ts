@@ -11,9 +11,11 @@ export interface CreatePaymentDto {
 }
 
 export interface PaymentDto {
+  id: number;
   amount: number;
   evidenceURL?: string;
   coments?: string;
+  isCash: boolean;
   banksInformation: BankInformationDTO;
   camper: CamperSimpleDto;
 }

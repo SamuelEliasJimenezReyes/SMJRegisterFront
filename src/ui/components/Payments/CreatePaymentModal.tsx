@@ -68,7 +68,7 @@ const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ onSubmit, onCan
   const getError = (field: string) => validationErrors[field]?.[0];
 
   return (
-    <div className="modal modal-open">
+    <div className="modal modal-open backdrop-blur-[2px]">
       <div className="modal-box">
         <h3 className="font-bold text-lg">Registrar Nuevo Pago</h3>
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -68,7 +68,7 @@ const CamperSelector: React.FC<CamperSelectorProps> = ({ value, onChange }) => {
         </option>
         {campers.map((camper) => (
           <option key={camper.id} value={camper.id}>
-            {camper.name} {camper.lastName} - {camper.phoneNumber}
+            {camper.name} {camper.lastName} - {camper.church.name} - {camper.phoneNumber}
           </option>
         ))}
       </select>

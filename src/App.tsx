@@ -8,6 +8,7 @@ import Login from './ui/Pages/User/Login';
 import GrantedCodePage from './ui/Pages/GrantedCode/GrantedCodePage';
 import RoomPage from './ui/Pages/Room/RoomPage';
 import PaymentPage from './ui/Pages/Payments/PaymentPage';
+import DashboardPage from './ui/Pages/Dashboard/DashboardPage';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem('jwtToken');
@@ -65,6 +66,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PaymentPage />
+            </ProtectedRoute>
+          } 
+          />
+          <Route 
+          path="directivo/dashboard" 
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
             </ProtectedRoute>
           } 
           />

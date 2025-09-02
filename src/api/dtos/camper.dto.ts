@@ -30,6 +30,7 @@ export interface CamperDTO {
   age: number;
   coments: string;
   paidAmount: number;
+  totalAmount: number;
   isGrant: boolean;
   isPaid: boolean;
   gender: string;
@@ -54,6 +55,7 @@ export interface CamperSimpleDto {
   payType: string;
   shirtSize: string;
   arrivedTimeSlot: string;
+  paidAmount: number;
   church: ChurchSimpleDTO;
 }
 
@@ -61,7 +63,7 @@ export interface UpdateCamperDTO {
   name: string;
   lastName: string;
   age: number;
-  paidAmount: number;
+  totalAmount: number;
   isGrant: boolean;
   isPaid: boolean;
   gender: number;

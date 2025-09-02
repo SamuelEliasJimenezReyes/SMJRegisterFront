@@ -16,6 +16,14 @@ const Header = () => {
         
         <nav className="flex gap-6">
           <Link 
+            to="/directivo/dashboard" 
+            className={`hover:text-primary transition-colors ${
+              location.pathname === '/directivo/dashboard' ? 'text-primary font-semibold' : ''
+            }`}
+          >
+            Caja Chica
+          </Link>
+          <Link 
             to="/directivo/campers" 
             className={`hover:text-primary transition-colors ${
               location.pathname === '/directivo/campers' ? 'text-primary font-semibold' : ''

@@ -16,7 +16,7 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
     name: '',
     lastName: '',
     age: 0,
-    paidAmount: 0,
+    totalAmount: 0,
     isGrant: false,
     isPaid: false,
     gender: 1, // Valor por defecto
@@ -40,7 +40,7 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
           name: camper.name,
           lastName: camper.lastName,
           age: camper.age || 0,
-          paidAmount: Number(camper.paidAmount),
+          totalAmount: Number(camper.paidAmount),
           isGrant: camper.isGrant,
           isPaid: camper.isPaid,
           gender: parseInt(camper.gender) || 1,
@@ -144,11 +144,11 @@ const UpdateCamperForm: React.FC<UpdateCamperFormProps> = ({ camperId, onUpdated
         </div>
 
         <div>
-          <label className="block mb-2 font-medium">Monto Pagado</label>
+          <label className="block mb-2 font-medium">Monto a Pagar</label>
           <input
             type="number"
             name="paidAmount"
-            value={formData.paidAmount}
+            value={formData.totalAmount}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             min="0"

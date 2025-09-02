@@ -87,7 +87,7 @@ const GrantedCodeTable: React.FC = () => {
       </table>
 
       {showCreateModal && (
-        <div className="modal modal-open">
+        <div className="modal modal-open backdrop-blur-[2px]">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Crear Nuevo Código de Beca</h3>
             <CreateGrantedCodeModal 
