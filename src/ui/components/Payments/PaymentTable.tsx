@@ -69,6 +69,7 @@ const PaymentTable: React.FC = () => {
             <th>Método de Pago</th>
             <th>Banco</th>
             <th>Comentarios</th>
+            <th>Campista</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -84,6 +85,7 @@ const PaymentTable: React.FC = () => {
                 }
               </td>
               <td>{payment.coments || 'Sin comentarios'}</td>
+              <td>{payment.camper.name} {payment.camper.lastName}</td>
               <td>
                 <div className="flex gap-2">
                   <button
