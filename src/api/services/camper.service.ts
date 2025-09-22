@@ -13,23 +13,26 @@ export class CamperService implements ICamperService {
     return result.data;
   }
 
- async CreateCamperAsync(camper: CreateCamperDTO): Promise<void> {
+async CreateCamperAsync(camper: CreateCamperDTO): Promise<void> {
     const formData = new FormData();
 
     Object.entries(camper).forEach(([key, value]) => {
-      if (key === "document" && value instanceof File) {
-        formData.append("document", value); 
-      } else if (value !== undefined && value !== null) {
-        formData.append(key, value instanceof Blob ? value : String(value));
+      if (value !== undefined && value !== null) {
+        if (value instanceof File) {
+          formData.append(key, value);
+        } else if (typeof value === "boolean") {
+          formData.append(key, value ? "true" : "false");
+        } else {
+          formData.append(key, String(value));
+        }
       }
     });
 
     await axiosInstance.post("/camper", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
   }
+
 
   async GetAllByConditionAsync(condition: number): Promise<CamperDTO[]> {
     const result = await axiosInstance.get<CamperDTO[]>(`/camper/get-by-condition${condition}`);

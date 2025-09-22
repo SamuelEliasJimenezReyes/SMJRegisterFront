@@ -3,10 +3,11 @@ import type { ChurchSimpleDTO } from '../../../api/dtos/church.dto';
 import { ChurchService } from '../../../api/services/church.service';
 
 interface ChurchSelectorProps {
-  value: number;
+  value?: number;
   onChange: (churchId: number) => void;
   conferenceId?: number;
 }
+
 
 const ChurchSelector: React.FC<ChurchSelectorProps> = ({ value, onChange, conferenceId }) => {
   const [churches, setChurches] = useState<ChurchSimpleDTO[]>([]);
@@ -45,10 +46,11 @@ const ChurchSelector: React.FC<ChurchSelectorProps> = ({ value, onChange, confer
         <span className="label-text">Seleccione una Iglesia</span>
       </label>
       <select
-        className="select select-bordered w-full"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-      >
+      className="select select-bordered w-full"
+      value={value ?? 0} 
+      onChange={(e) => onChange(Number(e.target.value))}
+    >
+
         <option value={0} disabled>
           Escoge una iglesia
         </option>

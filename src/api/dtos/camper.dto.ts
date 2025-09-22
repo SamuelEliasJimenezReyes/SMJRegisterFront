@@ -13,12 +13,12 @@ export interface CreateCamperDTO {
   grantedAmount: number;
   isPaid: boolean;
   document?: File;
-  gender: number;
-  condition: number;
-  payType: number;
-  shirtSize: number;
-  arrivedTimeSlot: number;
-  churchId: number;
+  gender?: number;
+  condition?: number;
+  payType?: number;
+  shirtSize?: number;
+  arrivedTimeSlot?: number;
+  churchId?: number;
   roomId?: number;
   code?: string;
 }
