@@ -92,7 +92,6 @@ const CreateCamperForm: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedConferenceId, setSelectedConferenceId] = useState<number | null>(null);
   const [conferences, setConferences] = useState<{ id: number; name: string }[]>([]);
@@ -116,13 +115,11 @@ const CreateCamperForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(false);
     setValidationErrors({});
     setShowSuccessModal(false);
 
     try {
       await new CamperService().CreateCamperAsync(formData);
-      setSuccess(true);
       setShowSuccessModal(true); // Mostrar el modal en éxito
     } catch (err: any) {
       if (err.response?.status === 400 && err.response.data?.errors) {
@@ -141,7 +138,6 @@ const CreateCamperForm: React.FC = () => {
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    setSuccess(false);
     // Resetear el formulario después de cerrar el modal
     setFormData({
       name: "",
