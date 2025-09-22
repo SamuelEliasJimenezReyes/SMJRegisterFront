@@ -70,25 +70,26 @@ const SuccessModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
 const CreateCamperForm: React.FC = () => {
   const [formData, setFormData] = useState<CreateCamperDTO>({
-    name: "",
-    lastName: "",
-    phoneNumber: "",
-    coments: "",
-    age: undefined,
-    paidAmount: 0,
-    isGrant: false,
-    grantedAmount: 0,
-    isPaid: false,
-    gender: 0,
-    condition: 0,
-    churchId: 0,
-    roomId: undefined,
-    code: "",
-    payType: 0,
-    document: undefined,
-    shirtSize: 0,
-    arrivedTimeSlot: 0,
-  });
+  name: "",
+  lastName: "",
+  phoneNumber: "",
+  coments: "",
+  age: 0,
+  paidAmount: 0,
+  isGrant: false,
+  grantedAmount: 0,
+  isPaid: false,
+  document: null!,
+  gender: 0,
+  condition: 0,
+  payType: 0,
+  shirtSize: 0,
+  arrivedTimeSlot: 0,
+  churchId: 0,
+  roomId: 0,
+  code: "",
+});
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
