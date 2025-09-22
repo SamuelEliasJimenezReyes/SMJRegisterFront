@@ -5,8 +5,11 @@ import ChurchSelector from '../Church/ChurchSelector';
 import BankInfoDisplay from '../BankInformation/BankInfoDisplay';
 
 const SuccessModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = 'unset'; }; }, []);
-  
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={(e) => e.stopPropagation()} />
@@ -68,42 +71,65 @@ const CreateCamperForm: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const newValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: type === 'number' ? Number(newValue) : newValue,
     }));
   };
-const formatPhone = (value: string) => {
-  if (!value) return "";
-  let rawValue = value.replace(/\D/g, ""); // Solo dígitos
-  if (rawValue.length > 10) rawValue = rawValue.slice(0, 10);
 
-  if (rawValue.length > 6) {
-    return `(${rawValue.slice(0, 3)}) ${rawValue.slice(3, 6)}-${rawValue.slice(6)}`;
-  } else if (rawValue.length > 3) {
-    return `(${rawValue.slice(0, 3)}) ${rawValue.slice(3)}`;
-  } else if (rawValue.length > 0) {
-    return `(${rawValue}`;
-  }
-  return rawValue;
-};
+  const formatPhone = (value: string) => {
+    if (!value) return "";
+    let rawValue = value.replace(/\D/g, "");
+    if (rawValue.length > 10) rawValue = rawValue.slice(0, 10);
+
+    if (rawValue.length > 6) {
+      return `(${rawValue.slice(0, 3)}) ${rawValue.slice(3, 6)}-${rawValue.slice(6)}`;
+    } else if (rawValue.length > 3) {
+      return `(${rawValue.slice(0, 3)}) ${rawValue.slice(3)}`;
+    } else if (rawValue.length > 0) {
+      return `(${rawValue}`;
+    }
+    return rawValue;
+  };
 
   const handleChurchChange = (churchId: number) => {
-    setFormData((prev) => ({ ...prev, churchId }));
+    setFormData(prev => ({ ...prev, churchId }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setError(null); setValidationErrors({}); setShowSuccessModal(false);
+    setLoading(true);
+    setError(null);
+    setValidationErrors({});
+    setShowSuccessModal(false);
 
-    // Validación mínima
-    if (!formData.name || !formData.lastName || !formData.phoneNumber || !formData.age ||
-        !formData.churchId || !formData.gender || !formData.condition || !formData.payType ||
-        !formData.shirtSize || !formData.arrivedTimeSlot) {
-      setError("Complete todos los campos obligatorios.");
-      setLoading(false);
-      return;
+    // Validación frontend para que coincida con backend
+    if (!formData.name.trim()) { setError("El nombre es obligatorio"); setLoading(false); return; }
+    if (!formData.lastName.trim()) { setError("El apellido es obligatorio"); setLoading(false); return; }
+    if (!formData.phoneNumber || !/^\d+$/.test(formData.phoneNumber)) { setError("El número de teléfono es obligatorio y solo puede contener números"); setLoading(false); return; }
+    if (!formData.age) { setError("La edad es obligatoria"); setLoading(false); return; }
+    if (!formData.document) { setError("Debe subir un comprobante"); setLoading(false); return; }
+
+    const numericFields: { field: keyof CreateCamperDTO, label: string }[] = [
+      { field: "gender", label: "Género" },
+      { field: "condition", label: "Condición" },
+      { field: "payType", label: "Método de pago" },
+      { field: "shirtSize", label: "Tamaño de camiseta" },
+      { field: "arrivedTimeSlot", label: "Día de llegada" },
+    ];
+
+    for (const { field, label } of numericFields) {
+      const value = formData[field];
+      if (typeof value !== 'number' || value <= 0) {
+        setError(`${label} es obligatorio`);
+        setLoading(false);
+        return;
+      }
     }
+    
+
+    if (!formData.churchId || formData.churchId <= 0) { setError("Debe seleccionar una iglesia"); setLoading(false); return; }
+    if (formData.isGrant && (!formData.code || !formData.code.trim())) { setError("Debe colocar un código de cupon"); setLoading(false); return; }
 
     try {
       await new CamperService().CreateCamperAsync(formData);
@@ -139,7 +165,6 @@ const formatPhone = (value: string) => {
       <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4 p-6 bg-base-100 shadow-xl rounded-xl">
         <h2 className="text-2xl font-bold">Registrar Campista</h2>
 
-        {/* Campos de texto */}
         <input name="name" type="text" placeholder="Nombre" className="input input-bordered w-full"
           value={formData.name} onChange={handleChange} />
         {getError("Camper.Name") && <p className="text-red-500 text-sm">{getError("Camper.Name")}</p>}
@@ -148,28 +173,23 @@ const formatPhone = (value: string) => {
           value={formData.lastName} onChange={handleChange} />
         {getError("Camper.LastName") && <p className="text-red-500 text-sm">{getError("Camper.LastName")}</p>}
 
-          <input
-            name="phoneNumber"
-            type="text"
-            placeholder="Número de Teléfono"
-            className="input input-bordered w-full"
-            value={formatPhone(formData.phoneNumber)}  
-            onChange={(e) => {
-              let rawValue = e.target.value.replace(/\D/g, ""); 
-              if (rawValue.length > 10) rawValue = rawValue.slice(0, 10);
-            
-              setFormData((prev) => ({ ...prev, phoneNumber: rawValue })); 
-            }}
-          />
-          {getError("Camper.PhoneNumber") && (
-            <p className="text-red-500 text-sm">{getError("Camper.PhoneNumber")}</p>
-          )}
-
+        <input
+          name="phoneNumber"
+          type="text"
+          placeholder="Número de Teléfono"
+          className="input input-bordered w-full"
+          value={formatPhone(formData.phoneNumber)}
+          onChange={(e) => {
+            let rawValue = e.target.value.replace(/\D/g, "");
+            if (rawValue.length > 10) rawValue = rawValue.slice(0, 10);
+            setFormData(prev => ({ ...prev, phoneNumber: rawValue }));
+          }}
+        />
+        {getError("Camper.PhoneNumber") && <p className="text-red-500 text-sm">{getError("Camper.PhoneNumber")}</p>}
 
         <input name="age" type="number" placeholder="Edad" className="input input-bordered w-full"
           value={formData.age ?? ""} onChange={handleChange} />
 
-        {/* Selects */}
         <select name="shirtSize" className="select select-bordered w-full" value={formData.shirtSize ?? 0} onChange={handleChange}>
           <option value={0} disabled>Seleccione un tamaño de camiseta</option>
           <option value={1}>10</option><option value={2}>12</option><option value={3}>14</option><option value={4}>16</option>
@@ -237,7 +257,7 @@ const formatPhone = (value: string) => {
         <BankInfoDisplay conferenceId={selectedConferenceId} />
 
         <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png" className="file-input file-input-success w-full"
-          onChange={(e) => { const file = e.target.files?.[0]; setFormData((prev) => ({ ...prev, document: file })); }} />
+          onChange={(e) => { const file = e.target.files?.[0]; setFormData(prev => ({ ...prev, document: file })); }} />
 
         <button type="submit" className={`btn btn-primary w-full ${loading ? "loading" : ""}`}>
           {loading ? "Registrando..." : "Registrar"}
