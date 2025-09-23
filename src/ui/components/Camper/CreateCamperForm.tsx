@@ -71,7 +71,6 @@ const CreateCamperForm: React.FC = () => {
  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
   const { name, value, type } = e.target;
   
-  // Lista de campos que deben ser números
   const numericFields = [
     'age', 'paidAmount', 'grantedAmount', 'gender', 'condition', 
     'payType', 'shirtSize', 'arrivedTimeSlot', 'churchId', 'roomId'
@@ -82,8 +81,7 @@ const CreateCamperForm: React.FC = () => {
   if (type === 'checkbox') {
     finalValue = (e.target as HTMLInputElement).checked;
   } else if (numericFields.includes(name)) {
-    // Convertir a número, usando 0 si está vacío
-    finalValue = value === '' ? 0 : Number(value);
+    finalValue = Number(value) || 0;  // <-- forzar conversión a número
   }
 
   setFormData(prev => ({
@@ -91,6 +89,7 @@ const CreateCamperForm: React.FC = () => {
     [name]: finalValue,
   }));
 };
+
   const formatPhone = (value: string) => {
     if (!value) return "";
     let rawValue = value.replace(/\D/g, "");

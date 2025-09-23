@@ -12,6 +12,7 @@
       const result = await axiosInstance.get<CamperDTO>(`/camper/${id}`);
       return result.data;
     }
+    
 async CreateCamperAsync(camper: CreateCamperDTO): Promise<void> {
   const formData = new FormData();
 
