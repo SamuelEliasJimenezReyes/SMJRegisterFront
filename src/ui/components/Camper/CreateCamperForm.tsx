@@ -33,25 +33,25 @@ const SuccessModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
 const CreateCamperForm: React.FC = () => {
   const [formData, setFormData] = useState<CreateCamperDTO>({
-    name: "",
-    lastName: "",
-    phoneNumber: "",
-    coments: "",
-    age: undefined,
-    paidAmount: 0,
-    isGrant: false,
-    grantedAmount: 0,
-    isPaid: false,
-    document: undefined,
-    gender: undefined,
-    condition: undefined,
-    payType: undefined,
-    shirtSize: undefined,
-    arrivedTimeSlot: undefined,
-    churchId: undefined,
-    roomId: undefined,
-    code: undefined,
-  });
+  name: "",
+  lastName: "",
+  phoneNumber: "",
+  coments: "",
+  age: 0,
+  paidAmount: 0,
+  isGrant: false,
+  grantedAmount: 0,
+  isPaid: false,
+  document: undefined,
+  gender: 0, 
+  condition: 0, 
+  payType: 0, 
+  shirtSize: 0, 
+  arrivedTimeSlot: 0, 
+  churchId: 0,
+  roomId: undefined,
+  code: undefined,
+});
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,15 +68,29 @@ const CreateCamperForm: React.FC = () => {
     ]);
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    const newValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? Number(newValue) : newValue,
-    }));
-  };
+ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const { name, value, type } = e.target;
+  
+  // Lista de campos que deben ser números
+  const numericFields = [
+    'age', 'paidAmount', 'grantedAmount', 'gender', 'condition', 
+    'payType', 'shirtSize', 'arrivedTimeSlot', 'churchId', 'roomId'
+  ];
 
+  let finalValue: any = value;
+
+  if (type === 'checkbox') {
+    finalValue = (e.target as HTMLInputElement).checked;
+  } else if (numericFields.includes(name)) {
+    // Convertir a número, usando 0 si está vacío
+    finalValue = value === '' ? 0 : Number(value);
+  }
+
+  setFormData(prev => ({
+    ...prev,
+    [name]: finalValue,
+  }));
+};
   const formatPhone = (value: string) => {
     if (!value) return "";
     let rawValue = value.replace(/\D/g, "");
@@ -96,64 +110,111 @@ const CreateCamperForm: React.FC = () => {
     setFormData(prev => ({ ...prev, churchId }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setValidationErrors({});
-    setShowSuccessModal(false);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  setValidationErrors({});
+  setShowSuccessModal(false);
+  console.log(formData);
+  // Validación frontend
+  if (!formData.name.trim()) {
+    setError("El nombre es obligatorio");
+    setLoading(false);
+    return;
+  }
+  if (!formData.lastName.trim()) {
+    setError("El apellido es obligatorio");
+    setLoading(false);
+    return;
+  }
+  if (!formData.phoneNumber || !/^\d+$/.test(formData.phoneNumber)) {
+    setError("El número de teléfono es obligatorio y solo puede contener números");
+    setLoading(false);
+    return;
+  }
+  if (!formData.age) {
+    setError("La edad es obligatoria");
+    setLoading(false);
+    return;
+  }
+  if (!formData.document) {
+    setError("Debe subir un comprobante");
+    setLoading(false);
+    return;
+  }
 
-    // Validación frontend para que coincida con backend
-    if (!formData.name.trim()) { setError("El nombre es obligatorio"); setLoading(false); return; }
-    if (!formData.lastName.trim()) { setError("El apellido es obligatorio"); setLoading(false); return; }
-    if (!formData.phoneNumber || !/^\d+$/.test(formData.phoneNumber)) { setError("El número de teléfono es obligatorio y solo puede contener números"); setLoading(false); return; }
-    if (!formData.age) { setError("La edad es obligatoria"); setLoading(false); return; }
-    if (!formData.document) { setError("Debe subir un comprobante"); setLoading(false); return; }
+  // Validación de campos numéricos obligatorios
+  const requiredNumericFields: { field: keyof CreateCamperDTO; label: string }[] = [
+    { field: "gender", label: "Género" },
+    { field: "condition", label: "Condición" },
+    { field: "payType", label: "Método de pago" },
+    { field: "shirtSize", label: "Tamaño de camiseta" },
+    { field: "arrivedTimeSlot", label: "Día de llegada" },
+  ];
 
-    const numericFields: { field: keyof CreateCamperDTO, label: string }[] = [
-      { field: "gender", label: "Género" },
-      { field: "condition", label: "Condición" },
-      { field: "payType", label: "Método de pago" },
-      { field: "shirtSize", label: "Tamaño de camiseta" },
-      { field: "arrivedTimeSlot", label: "Día de llegada" },
-    ];
-
-    for (const { field, label } of numericFields) {
-      const value = formData[field];
-      if (typeof value !== 'number' || value <= 0) {
-        setError(`${label} es obligatorio`);
-        setLoading(false);
-        return;
-      }
-    }
-    
-
-    if (!formData.churchId || formData.churchId <= 0) { setError("Debe seleccionar una iglesia"); setLoading(false); return; }
-    if (formData.isGrant && (!formData.code || !formData.code.trim())) { setError("Debe colocar un código de cupon"); setLoading(false); return; }
-
-    try {
-      await new CamperService().CreateCamperAsync(formData);
-      setShowSuccessModal(true);
-    } catch (err: any) {
-      if (err.response?.status === 400 && err.response.data?.errors) {
-        setValidationErrors(err.response.data.errors);
-      } else if (err.response?.status !== 500) {
-        setError("Error al crear el campista");
-      } else {
-        setError("Error interno del servidor. Por favor, intente más tarde.");
-      }
-    } finally {
+  for (const { field, label } of requiredNumericFields) {
+    const value = formData[field];
+    if (typeof value !== "number" || value <= 0) {
+      setError(`${label} es obligatorio`);
       setLoading(false);
+      return;
     }
-  };
+  }
+
+  if (!formData.churchId || formData.churchId <= 0) {
+    setError("Debe seleccionar una iglesia");
+    setLoading(false);
+    return;
+  }
+
+  if (formData.isGrant && (!formData.code || !formData.code.trim())) {
+    setError("Debe colocar un código de cupon");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    // Pasamos directamente el DTO al servicio, que internamente crea FormData
+    await new CamperService().CreateCamperAsync(formData);
+
+    setShowSuccessModal(true);
+  } catch (err: any) {
+    if (err.response?.status === 400 && err.response.data?.errors) {
+      setValidationErrors(err.response.data.errors);
+    } else if (err.response?.status !== 500) {
+      setError("Error al crear el campista");
+    } else {
+      setError("Error interno del servidor. Por favor, intente más tarde.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setFormData({
-      name: "", lastName: "", phoneNumber: "", coments: "",
-      age: undefined, paidAmount: 0, isGrant: false, grantedAmount: 0, isPaid: false,
-      document: undefined, gender: undefined, condition: undefined, payType: undefined,
-      shirtSize: undefined, arrivedTimeSlot: undefined, churchId: undefined, roomId: undefined, code: undefined,
+      name: "",
+      lastName: "",
+      phoneNumber: "",
+      coments: "",
+      age: 0,
+      paidAmount: 0,
+      isGrant: false,
+      grantedAmount: 0,
+      isPaid: false,
+      document: undefined,
+      gender: 0,
+      condition: 0,
+      payType: 0,
+      shirtSize: 0,
+      arrivedTimeSlot: 0,
+      churchId: 0,
+      roomId: undefined,
+      code: undefined,
     });
     setSelectedConferenceId(null);
   };
@@ -188,9 +249,9 @@ const CreateCamperForm: React.FC = () => {
         {getError("Camper.PhoneNumber") && <p className="text-red-500 text-sm">{getError("Camper.PhoneNumber")}</p>}
 
         <input name="age" type="number" placeholder="Edad" className="input input-bordered w-full"
-          value={formData.age ?? ""} onChange={handleChange} />
+          value={formData.age} onChange={handleChange} />
 
-        <select name="shirtSize" className="select select-bordered w-full" value={formData.shirtSize ?? 0} onChange={handleChange}>
+        <select name="shirtSize" className="select select-bordered w-full" value={formData.shirtSize} onChange={handleChange}>
           <option value={0} disabled>Seleccione un tamaño de camiseta</option>
           <option value={1}>10</option><option value={2}>12</option><option value={3}>14</option><option value={4}>16</option>
           <option value={5}>XS</option><option value={6}>S</option><option value={7}>M</option><option value={8}>L</option>
@@ -209,7 +270,7 @@ const CreateCamperForm: React.FC = () => {
             value={formData.code ?? ""} onChange={handleChange} />
         )}
 
-        <select name="arrivedTimeSlot" className="select select-bordered w-full" value={formData.arrivedTimeSlot ?? 0} onChange={handleChange}>
+        <select name="arrivedTimeSlot" className="select select-bordered w-full" value={formData.arrivedTimeSlot} onChange={handleChange}>
           <option value={0} disabled>Seleccione un dia de llegada</option>
           <option value={1}>Sabado Mañana</option>
           <option value={2}>Sabado Tarde</option>
@@ -217,13 +278,13 @@ const CreateCamperForm: React.FC = () => {
           <option value={4}>Lunes</option>
         </select>
 
-        <select name="gender" className="select select-bordered w-full" value={formData.gender ?? 0} onChange={handleChange}>
+        <select name="gender" className="select select-bordered w-full" value={formData.gender} onChange={handleChange}>
           <option value={0} disabled>Seleccione Género</option>
           <option value={1}>Hombre</option>
           <option value={2}>Mujer</option>
         </select>
 
-        <select name="condition" className="select select-bordered w-full" value={formData.condition ?? 0} onChange={handleChange}>
+        <select name="condition" className="select select-bordered w-full" value={formData.condition} onChange={handleChange}>
           <option value={0} disabled>Seleccione Condición</option>
           <option value={1}>Campista</option>
           <option value={2}>Staff</option>
@@ -239,13 +300,13 @@ const CreateCamperForm: React.FC = () => {
           </select>
 
           <ChurchSelector
-            value={formData.churchId ?? 0}
+            value={formData.churchId}
             onChange={handleChurchChange}
             conferenceId={selectedConferenceId ?? undefined}
           />
         </div>
 
-        <select name="payType" className="select select-bordered w-full" value={formData.payType ?? 0} onChange={handleChange}>
+        <select name="payType" className="select select-bordered w-full" value={formData.payType} onChange={handleChange}>
           <option value={0} disabled>Seleccione un método de pago</option>
           <option value={1}>Transferencia</option>
           <option value={2}>A través de un directivo</option>
@@ -265,7 +326,6 @@ const CreateCamperForm: React.FC = () => {
 
         {error && <div className="alert alert-error mt-2">{error}</div>}
       </form>
-
       {showSuccessModal && <SuccessModal onClose={handleSuccessModalClose} />}
     </>
   );

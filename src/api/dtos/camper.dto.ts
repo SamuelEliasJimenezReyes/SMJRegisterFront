@@ -7,21 +7,22 @@ export interface CreateCamperDTO {
   lastName: string;
   phoneNumber: string;
   coments: string;
-  age?: number;
-  paidAmount: number;
-  isGrant: boolean;
-  grantedAmount: number;
-  isPaid: boolean;
-  document?: File;
-  gender?: number;
-  condition?: number;
-  payType?: number;
-  shirtSize?: number;
-  arrivedTimeSlot?: number;
-  churchId?: number;
-  roomId?: number;
-  code?: string;
+  age: number;               
+  paidAmount: number;        
+  isGrant: boolean;          
+  grantedAmount: number;     
+  isPaid: boolean;           
+  document?: File;           
+  gender: number;            
+  condition: number;         
+  payType: number;           
+  shirtSize: number;         
+  arrivedTimeSlot: number;   
+  churchId: number;          
+  roomId?: number;           
+  code?: string;             
 }
+
 
 export interface CamperDTO {
   name: string;
