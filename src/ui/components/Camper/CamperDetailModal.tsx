@@ -66,6 +66,7 @@ const CamperDetailModal: React.FC<CamperDetailModalProps> = ({ camper, onClose }
           <p><strong>Condición:</strong> {camper.condition}</p>
           <p><strong>Iglesia:</strong> {camper.church?.name || 'No especificada'}</p>
           <p><strong>Conferencia:</strong> {camper.church?.conference || 'No especificada'}</p>
+          <p><strong>Tamaño de t-shirt:</strong> {camper.shirtSize|| 'No especificada'}</p>
           <p><strong>Hora de llegada:</strong> {formatArrivedTimeSlot(camper.arrivedTimeSlot)}</p>
           <p><strong>Habitación:</strong> {camper.room?.name || 'No asignada'}</p>
           <p><strong>Total Pagado:</strong> {formatMoney(camper.paidAmount)}</p>
