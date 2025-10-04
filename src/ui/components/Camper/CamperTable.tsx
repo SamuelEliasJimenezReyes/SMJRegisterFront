@@ -255,7 +255,7 @@ const CamperTable: React.FC = () => {
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Teléfono</th>
-            <th>Becado</th>
+            <th>Size</th>
             <th>Género</th>
             <th>Condición</th>
             <th>Iglesia</th>
@@ -271,7 +271,7 @@ const CamperTable: React.FC = () => {
               <td>{camper.name}</td>
               <td>{camper.lastName}</td>
               <td>{formatPhoneNumber(camper.phoneNumber)}</td>
-              <td>{camper.isGrant ? 'Sí' : 'No'}</td>
+              <td>{camper.shirtSize}</td>
               <td>{camper.gender}</td>
               <td>{camper.condition}</td>
               <td>{camper.church?.name || '-'}</td>
